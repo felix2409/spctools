@@ -93,7 +93,7 @@ function isColorImageData(imageData) {
   }
 
   const colorRatio = colorCount / totalPixels;
-  return colorRatio > 0.03; // lebih dari 3% piksel warna baru dianggap berwarna
+  return colorRatio > 0; // lebih dari 1% piksel warna baru dianggap berwarna
 }
 
 function toRangeList(pages) {
