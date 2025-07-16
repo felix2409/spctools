@@ -3,96 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tools Cetak</title>
+  <title>•Tools Cetak•</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f9;
-      color: #333;
+      font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+      background: #fff9c4;
+      color: #222;
     }
     header {
-      background: #0077cc;
-      color: white;
-      padding: 20px;
+      background: #ffeb3b;
+      color: #d50000;
+      padding: 25px 10px;
       text-align: center;
+      text-shadow: 2px 2px #000;
+      border-bottom: 4px solid #d50000;
     }
     h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 32px;
+      font-weight: bold;
+    }
+    p {
+      margin: 5px 0 0;
+      font-size: 16px;
     }
     .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 20px;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      padding: 30px;
     }
     .card {
-      background: white;
-      border-radius: 10px;
+      background: #fffde7;
+      border: 3px solid #ff5252;
+      border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       text-align: center;
-      transition: transform 0.2s;
+      box-shadow: 4px 4px 0 #000;
+      transition: transform 0.2s ease-in-out;
     }
     .card:hover {
-      transform: translateY(-5px);
+      transform: scale(1.05);
     }
     .card h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      color: #0077cc;
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #d50000;
+      text-shadow: 1px 1px #000;
     }
     .card p {
       font-size: 14px;
-      color: #666;
+      color: #444;
     }
     .card a {
       display: inline-block;
       margin-top: 10px;
       padding: 10px 15px;
-      background: #0077cc;
+      background: #d50000;
       color: white;
       text-decoration: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      box-shadow: 2px 2px 0 #000;
+      font-weight: bold;
     }
     footer {
       text-align: center;
       margin-top: 40px;
       padding: 20px;
+      background: #fdd835;
+      color: #222;
       font-size: 12px;
-      color: #888;
+      border-top: 4px solid #d50000;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Tools Cetak Digital</h1>
-    <p>Beberapa tools untuk memudahkan menghitung</p>
+    <h1>💥 Tools Cetak Digital</h1>
+    <p>Beberapa tools untuk memudahkan beberapa perhitungan</p>
   </header>
 
   <div class="container">
     <div class="card">
-      <h2>Hitung Booklet A3</h2>
-      <p>Menghitung jumlah sisi A3 untuk booklet berdasarkan ukuran dan halaman.</p>
+      <h2>📖 Hitung Booklet A3</h2>
+      <p>Menghitung sisi A3 untuk booklet dengan cepat!</p>
       <a href="HITUNG BOOKLET.html">Buka Tool</a>
     </div>
     <div class="card">
-      <h2>Hitung Objek Cetak</h2>
-      <p>Simulasikan tata letak objek kotak/bulat di media cetak (A3, A3+, dll).</p>
+      <h2>📐 Hitung Objek Cetak</h2>
+      <p>Hitung muat berapa objek kotak/bulat di media cetak A4/A3/A3/Kisscut.</p>
       <a href="HITUNG OBJEK.html">Buka Tool</a>
     </div>
     <div class="card">
-      <h2>Pisah Warna PDF</h2>
-      <p>Deteksi otomatis halaman berwarna dan BW dari file PDF.</p>
+      <h2>🖨️ Pisah Warna PDF</h2>
+      <p>Deteksi otomatis halaman berwarna dan BW.</p>
       <a href="PISAH WARNA BW.html">Buka Tool</a>
+    </div>
+    <div class="card">
+      <h2>💰 Kalkulator Kasir</h2>
+      <p>Hitung pendapatan Kasir Mulyosari per shift.</p>
+      <a href="KASIR.html">Buka Tool</a>
     </div>
   </div>
 
   <footer>
-    &copy; 2025 • Toolkit Cetak by Felix
+    &copy; 2025 • Tools Gabut by Felix hehe
   </footer>
 </body>
 </html>
