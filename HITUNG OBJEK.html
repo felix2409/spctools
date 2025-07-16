@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hitung dan Preview Objek</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input, select { margin: 5px; width: 100px; }
+    canvas { border: 1px solid #ccc; margin-top: 20px; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 8px; }
+    table { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h2>Hitung & Preview Objek di Media Cetak</h2>
+
+<label>Bentuk Objek:
+  <select id="shapeSelect">
+    <option value="kotak">Kotak</option>
+    <option value="bulat">Bulat</option>
+  </select>
+</label><br>
+
+<label>Ukuran Objek (cm):</label><br>
+<label>Lebar / Diameter: <input type="number" id="objekWidth" value="5"></label>
+<label>Tinggi (khusus kotak): <input type="number" id="objekHeight" value="5"></label><br>
+
+<label>Jarak Antar Objek (cm): <input type="number" id="spacing" value="0.2"></label><br>
+
+<label>Pilih Media Cetak:
+  <select id="mediaSelect">
+    <option value="41x28">A3 (41 x 28 cm)</option>
+    <option value="20x28">A4 (20 x 28 cm)</option>
+    <option value="45x29">Kisscut (45 x 29 cm)</option>
+    <option value="47x31">A3+ (47 x 31 cm)</option>
+  </select>
+</label><br>
+
+<button onclick="hitung()">Hitung & Preview</button>
+
+<table id="result">
+  <thead>
+    <tr>
+      <th>Ukuran Media</th>
+      <th>Jumlah Objek</th>
+      <th>Keterangan</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<canvas id="previewCanvas" width="800" height="500"></canvas>
+
+<script>
+function hitung() {
+  const shape = document.getElementById("shapeSelect").value;
+  const objW = parseFloat(document.getElementById("objekWidth").value);
+  const objH = parseFloat(document.getElementById("objekHeight").value);
+  const spacing = parseFloat(document.getElementById("spacing").value);
+  const [mediaW, mediaH] = document.getElementById("mediaSelect").value.split("x").map(parseFloat);
+
+  const canvas = document.getElementById("previewCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Skala (agar semua muat di canvas)
+  const scale = Math.min(canvas.width / mediaW, canvas.height / mediaH) * 0.95;
+
+  // Gambar background media cetak
+  ctx.fillStyle = "#f9f9f9";
+  ctx.fillRect(0, 0, mediaW * scale, mediaH * scale);
+  ctx.strokeStyle = "#000";
+  ctx.strokeRect(0, 0, mediaW * scale, mediaH * scale);
+
+  let count = 0;
+  let keterangan = "";
+
+  if (shape === "kotak") {
+    const w1 = objW + spacing;
+    const h1 = objH + spacing;
+    const w2 = objH + spacing;
+    const h2 = objW + spacing;
+
+    const cols1 = Math.floor(mediaW / w1);
+    const rows1 = Math.floor(mediaH / h1);
+    const count1 = cols1 * rows1;
+
+    const cols2 = Math.floor(mediaW / w2);
+    const rows2 = Math.floor(mediaH / h2);
+    const count2 = cols2 * rows2;
+
+    if (count1 >= count2) {
+      count = count1;
+      keterangan = `Tanpa rotasi: ${count1} (${cols1}x${rows1})`;
+      ctx.fillStyle = "#3498db";
+      for (let r = 0; r < rows1; r++) {
+        for (let c = 0; c < cols1; c++) {
+          const x = c * w1 * scale;
+          const y = r * h1 * scale;
+          ctx.fillRect(x, y, objW * scale, objH * scale);
+        }
+      }
+    } else {
+      count = count2;
+      keterangan = `Dengan rotasi: ${count2} (${cols2}x${rows2})`;
+      ctx.fillStyle = "#e67e22";
+      for (let r = 0; r < rows2; r++) {
+        for (let c = 0; c < cols2; c++) {
+          const x = c * w2 * scale;
+          const y = r * h2 * scale;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(Math.PI / 2);
+          ctx.fillRect(0, 0, objH * scale, objW * scale);
+          ctx.restore();
+        }
+      }
+    }
+
+  } else if (shape === "bulat") {
+    const d = objW;
+    const dist = d + spacing;
+    const rowHeight = (Math.sqrt(3) / 2) * dist;
+    const cols = Math.floor(mediaW / dist);
+    const rows = Math.floor(mediaH / rowHeight);
+    count = cols * rows;
+    keterangan = `Hexagonal: ${cols} kolom, ${rows} baris`;
+
+    ctx.fillStyle = "#2ecc71";
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const offsetX = (r % 2) * (dist / 2);
+        const x = (c * dist + offsetX) * scale;
+        const y = (r * rowHeight) * scale;
+        ctx.beginPath();
+        ctx.arc(x, y, (d / 2) * scale, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Tampilkan hasil ke tabel
+  const tbody = document.querySelector("#result tbody");
+  tbody.innerHTML = `
+    <tr>
+      <td>${mediaW} x ${mediaH} cm</td>
+      <td><strong>${count}</strong></td>
+      <td>${keterangan}</td>
+    </tr>
+  `;
+}
+</script>
+
+</body>
+</html>
