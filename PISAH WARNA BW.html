@@ -38,11 +38,11 @@
 </head>
 <body>
 
-<h1>Deteksi Halaman Warna & Hitam Putih By LIXX</h1>
+<h1>Deteksi Halaman Warna & Hitam Putih</h1>
 
 <div>
   <div class="upload-area" id="uploadArea">
-    <div class="upload-text" id="uploadText">Seret & lepas PDF di sini<br>atau klik untuk unggah</div>
+    <div class="upload-text" id="uploadText">Seret & lepas PDF di sini,tapi jangan ditinggal yaaa...<br>atau klik untuk unggah</div>
   </div>
   <input type="file" id="pdfInput" accept="application/pdf" />
   <div class="result" id="resultArea"></div>
@@ -93,7 +93,7 @@ function isColorImageData(imageData) {
   }
 
   const colorRatio = colorCount / totalPixels;
-  return colorRatio > 0.01; // lebih dari 1% piksel warna baru dianggap berwarna
+  return colorRatio > 0.03; // lebih dari 3% piksel warna baru dianggap berwarna
 }
 
 function toRangeList(pages) {
