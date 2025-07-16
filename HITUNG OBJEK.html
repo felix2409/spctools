@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hitung & Preview Objek Cetak</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 900px;
+      margin: 30px auto;
+      background: #f9f9f9;
+      padding: 0 20px;
+    }
+    label, select, input {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    input, select {
+      padding: 8px;
+      width: 100%;
+      max-width: 250px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background: #2c3e50;
+      color: white;
+    }
+    canvas {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Hitung & Preview Objek Cetak</h2>
+
+<label>Bentuk Objek:
+  <select id="shapeSelect">
+    <option value="kotak">Kotak</option>
+    <option value="bulat">Bulat</option>
+  </select>
+</label>
+
+<label>Ukuran Objek (cm):</label>
+<label>Diameter / Lebar: <input type="number" id="objekWidth" value="5"></label>
+<div id="tinggiField">
+  <label>Tinggi (khusus kotak): <input type="number" id="objekHeight" value="6"></label>
+</div>
+
+<label>Jarak Antar Objek (cm): <input type="number" id="spacing" value="0"></label>
+
+<label>Ukuran Media Cetak:
+  <select id="mediaSelect">
+    <option value="45x29">Kisscut (45 x 29 cm)</option>
+    <option value="41x28">A3 (41 x 28 cm)</option>
+    <option value="20x28">A4 (20 x 28 cm)</option>
+    <option value="47x31">A3+ (47 x 31 cm)</option>
+  </select>
+</label>
+
+<button onclick="hitung()">Hitung & Preview</button>
+
+<table id="result">
+  <thead>
+    <tr>
+      <th>Ukuran Media</th>
+      <th>Jumlah Objek</th>
+      <th>Keterangan</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<canvas id="previewCanvas" width="800" height="500"></canvas>
+
+<script>
+document.getElementById("shapeSelect").addEventListener("change", function () {
+  const bentuk = this.value;
+  const tinggiField = document.getElementById("tinggiField");
+  tinggiField.style.display = (bentuk === "kotak") ? "block" : "none";
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const bentuk = document.getElementById("shapeSelect").value;
+  document.getElementById("tinggiField").style.display = (bentuk === "kotak") ? "block" : "none";
+});
+
+function hitung() {
+  const shape = document.getElementById("shapeSelect").value;
+  const objW = parseFloat(document.getElementById("objekWidth").value);
+  const objH = parseFloat(document.getElementById("objekHeight").value);
+  const spacing = parseFloat(document.getElementById("spacing").value);
+  const [mediaW, mediaH] = document.getElementById("mediaSelect").value.split("x").map(parseFloat);
+
+  const canvas = document.getElementById("previewCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const scale = Math.min(canvas.width / mediaW, canvas.height / mediaH) * 0.95;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, mediaW * scale, mediaH * scale);
+  ctx.strokeStyle = "#999";
+  ctx.strokeRect(0, 0, mediaW * scale, mediaH * scale);
+
+  let count = 0;
+  let keterangan = "";
+
+  if (shape === "kotak") {
+    const w = objW + spacing;
+    const h = objH + spacing;
+    const wr = objH + spacing;
+    const hr = objW + spacing;
+
+    const colsNormal = Math.floor(mediaW / w);
+    const rowsNormal = Math.floor(mediaH / h);
+    const countNormal = colsNormal * rowsNormal;
+
+    const colsRotated = Math.floor(mediaW / wr);
+    const rowsRotated = Math.floor(mediaH / hr);
+    const countRotated = colsRotated * rowsRotated;
+
+    const heightUsed = rowsNormal * h;
+    const remainingHeight = mediaH - heightUsed;
+    const rowsRotExtra = Math.floor(remainingHeight / hr);
+    const countCombo = colsNormal * rowsNormal + colsRotated * rowsRotExtra;
+
+    let best = "normal";
+    count = countNormal;
+    if (countRotated > count) {
+      best = "rotated";
+      count = countRotated;
+    }
+    if (countCombo > count) {
+      best = "combo";
+      count = countCombo;
+    }
+
+    ctx.fillStyle = best === "rotated" ? "#e67e22" : "#3498db";
+    let yStart = 0;
+
+    if (best === "normal" || best === "combo") {
+      for (let r = 0; r < rowsNormal; r++) {
+        for (let c = 0; c < colsNormal; c++) {
+          const x = c * w * scale;
+          const y = r * h * scale;
+          ctx.fillStyle = "#3498db";
+          ctx.fillRect(x, y, objW * scale, objH * scale);
+          ctx.strokeStyle = "#1f4e70";
+          ctx.strokeRect(x, y, objW * scale, objH * scale);
+        }
+      }
+      yStart = rowsNormal * h * scale;
+    }
+
+    if (best === "rotated" || best === "combo") {
+      const yOffset = best === "combo" ? yStart : 0;
+      const rotRows = best === "combo" ? rowsRotExtra : rowsRotated;
+      const rotCols = colsRotated;
+
+      for (let r = 0; r < rotRows; r++) {
+        for (let c = 0; c < rotCols; c++) {
+          const x = c * wr * scale;
+          const y = yOffset + r * hr * scale;
+
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.translate(objH * scale, 0);
+          ctx.rotate(Math.PI / 2);
+          ctx.fillStyle = "#ffc966";
+          ctx.fillRect(0, 0, objW * scale, objH * scale);
+          ctx.strokeStyle = "#cc8400";
+          ctx.strokeRect(0, 0, objW * scale, objH * scale);
+          ctx.restore();
+        }
+      }
+    }
+
+    keterangan = `Layout terbaik: ${count} objek (${best === "combo" ? "kombinasi rotasi sebagian" : best === "rotated" ? "rotasi semua" : "tanpa rotasi"})`;
+  }
+
+  else if (shape === "bulat") {
+    const d = objW;
+    const distX = d + spacing;
+    const distYZigzag = (d + spacing) * 0.866;
+    const distYGrid = d + spacing;
+
+    const colsGrid = Math.floor(mediaW / distX);
+    const rowsGrid = Math.floor(mediaH / distYGrid);
+    const countGrid = colsGrid * rowsGrid;
+
+    const rowsZigzag = Math.floor(mediaH / distYZigzag);
+    const colsEven = Math.floor(mediaW / distX);
+    const colsOdd = Math.floor((mediaW - distX / 2) / distX);
+    let countZigzag = 0;
+    for (let r = 0; r < rowsZigzag; r++) {
+      countZigzag += r % 2 === 0 ? colsEven : colsOdd;
+    }
+
+    let bestMethod = "grid";
+    count = countGrid;
+    if (countZigzag > countGrid) {
+      bestMethod = "zigzag";
+      count = countZigzag;
+    }
+
+    if (bestMethod === "grid") {
+      for (let r = 0; r < rowsGrid; r++) {
+        for (let c = 0; c < colsGrid; c++) {
+          const x = (c * distX + d / 2) * scale;
+          const y = (r * distYGrid + d / 2) * scale;
+          ctx.beginPath();
+          ctx.arc(x, y, (d / 2) * scale, 0, 2 * Math.PI);
+          ctx.fillStyle = "#2ecc71";
+          ctx.fill();
+          ctx.strokeStyle = "#1b8f5a";
+          ctx.stroke();
+        }
+      }
+      keterangan = `Tanpa zigzag: ${count} objek`;
+    } else {
+      for (let r = 0; r < rowsZigzag; r++) {
+        const isOdd = r % 2 === 1;
+        const cols = isOdd ? colsOdd : colsEven;
+        const offsetX = isOdd ? distX / 2 : 0;
+        const y = r * distYZigzag * scale + (d / 2) * scale;
+
+        for (let c = 0; c < cols; c++) {
+          const x = (c * distX + offsetX + d / 2) * scale;
+          ctx.beginPath();
+          ctx.arc(x, y, (d / 2) * scale, 0, 2 * Math.PI);
+          ctx.fillStyle = "#2ecc71";
+          ctx.fill();
+          ctx.strokeStyle = "#1b8f5a";
+          ctx.stroke();
+        }
+      }
+      keterangan = `Zigzag horizontal: ${count} objek`;
+    }
+  }
+
+  document.querySelector("#result tbody").innerHTML = `
+    <tr>
+      <td>${mediaW} × ${mediaH} cm</td>
+      <td><strong>${count}</strong></td>
+      <td>${keterangan}</td>
+    </tr>
+  `;
+}
+</script>
+
+</body>
+</html>
