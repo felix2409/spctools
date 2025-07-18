@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Ubah Gambar ke PDF (47×31 cm)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background: #f5f7fa;
+      text-align: center;
+    }
+    h2 {
+      color: #0077cc;
+      margin-bottom: 1rem;
+    }
+    input[type="file"] {
+      padding: 1rem;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+    input[type="file"]:hover {
+      border-color: #0077cc;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.5rem;
+      background: #0077cc;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    ul {
+      text-align: left;
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      animation: fadeIn 0.5s ease;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    canvas {
+      display: none;
+    }
+    .status-ok {
+      color: #2ecc71;
+    }
+    .status-fail {
+      color: #e74c3c;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <h2><i class="fas fa-images"></i> Ubah Beberapa Gambar ke PDF (47×31 cm)</h2>
+  <label>
+    <input type="file" id="upload" accept="image/*" multiple>
+  </label>
+  <br>
+  <button onclick="convertAll()"><i class="fas fa-file-pdf"></i> Ubah & Unduh PDF</button>
+
+  <canvas id="canvas"></canvas>
+  <ul id="status"></ul>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const statusList = document.getElementById('status');
+
+    function updateStatus(text, success = true) {
+      const li = document.createElement('li');
+      li.innerHTML = success 
+        ? `<i class='fas fa-check-circle'></i> <span class='status-ok'>${text}</span>`
+        : `<i class='fas fa-exclamation-circle'></i> <span class='status-fail'>${text}</span>`;
+      statusList.appendChild(li);
+    }
+
+    async function convertAll() {
+      statusList.innerHTML = '';
+      const files = document.getElementById('upload').files;
+      if (!files.length) {
+        alert("Silakan pilih gambar terlebih dahulu.");
+        return;
+      }
+
+      for (const file of files) {
+        try {
+          await processImage(file);
+        } catch (err) {
+          updateStatus(`Gagal: ${file.name}`, false);
+        }
+      }
+    }
+
+    async function processImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const img = new Image();
+          img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+
+            const imgDataURL = canvas.toDataURL('image/jpeg', 1.0);
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+              orientation: 'portrait',
+              unit: 'mm',
+              format: [310, 470] // 47x31 cm dalam mm
+            });
+
+            pdf.addImage(imgDataURL, 'JPEG', 0, 0, 310, 470);
+
+            const baseName = file.name.replace(/\.[^/.]+$/, "");
+            pdf.save(`${baseName}.pdf`);
+            updateStatus(`Selesai: ${baseName}.pdf`);
+            resolve();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>

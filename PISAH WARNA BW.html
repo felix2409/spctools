@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Deteksi Warna PDF</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f4f8;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      color: #0077cc;
+    }
+    .upload-area {
+      width: 500px;
+      height: 250px;
+      border: 3px dashed #bbb;
+      border-radius: 12px;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .upload-area.dragover {
+      background-color: #e3f2ff;
+    }
+    .upload-text {
+      font-size: 1.2rem;
+      color: #666;
+    }
+    #pdfInput {
+      display: none;
+    }
+    .result {
+      margin-top: 2rem;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.07);
+      font-size: 1rem;
+      max-width: 520px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    .badge-blue { background: #0077cc; }
+    .badge-gray { background: #777; }
+    .status {
+      font-size: 0.95rem;
+      color: #444;
+      margin-top: 1rem;
+      line-height: 1.6;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<h1><i class="fas fa-file-pdf"></i> Deteksi Halaman Warna & BW</h1>
+
+<div class="upload-area" id="uploadArea">
+  <div class="upload-text" id="uploadText">
+    <i class="fas fa-cloud-upload-alt fa-2x"></i><br>
+    Seret & lepas PDF di sini<br>atau klik untuk unggah
+  </div>
+</div>
+<input type="file" id="pdfInput" accept="application/pdf" />
+<div class="result" id="resultArea"></div>
+
+<script>
+const uploadArea = document.getElementById('uploadArea');
+const pdfInput = document.getElementById('pdfInput');
+const resultArea = document.getElementById('resultArea');
+
+uploadArea.addEventListener('click', () => pdfInput.click());
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('dragover');
+});
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('dragover');
+});
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    handlePDF(file);
+  }
+});
+pdfInput.addEventListener('change', () => {
+  if (pdfInput.files.length > 0) {
+    const file = pdfInput.files[0];
+    handlePDF(file);
+  }
+});
+
+function isColorImageData(imageData) {
+  const data = imageData.data;
+  let colorCount = 0;
+  const totalPixels = data.length / 4;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    if (Math.abs(r - g) < 10 && Math.abs(g - b) < 10 && Math.abs(r - b) < 10) continue;
+    colorCount++;
+  }
+  return (colorCount / totalPixels) > 0;
+}
+
+function toRangeList(pages) {
+  if (pages.length === 0) return '-';
+  pages.sort((a, b) => a - b);
+  const ranges = [];
+  let start = pages[0], end = pages[0];
+  for (let i = 1; i <= pages.length; i++) {
+    if (pages[i] === end + 1) {
+      end = pages[i];
+    } else {
+      ranges.push(start === end ? `${start}` : `${start}-${end}`);
+      start = pages[i];
+      end = pages[i];
+    }
+  }
+  return ranges.join(', ');
+}
+
+async function handlePDF(file) {
+  resultArea.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ⏳ Memproses PDF...';
+  const arrayBuffer = await file.arrayBuffer();
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+  const pdf = await loadingTask.promise;
+
+  const warna = [], bw = [];
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    resultArea.innerHTML = `<i class='fas fa-spinner fa-spin'></i> Memproses halaman ${i} dari ${pdf.numPages}...`;
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const context = canvas.getContext('2d');
+    await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+    const imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+    if (isColorImageData(imgData)) {
+      warna.push(i);
+    } else {
+      bw.push(i);
+    }
+  }
+
+  resultArea.innerHTML = `
+    <div class="status">
+      <p><i class="fas fa-file"></i> <strong>Nama File:</strong> ${file.name}</p>
+      <p><i class="fas fa-copy"></i> <strong>Total halaman:</strong> ${pdf.numPages}</p>
+      <p><span class="badge badge-blue">Warna: ${warna.length}</span><br> ${toRangeList(warna)}</p>
+      <p><span class="badge badge-gray">Hitam Putih: ${bw.length}</span><br> ${toRangeList(bw)}</p>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
