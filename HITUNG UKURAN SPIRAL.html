@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>📘 Hitung Ukuran Spiral & Punggung Buku</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      padding: 2rem;
+      margin: 0;
+    }
+    .container {
+      background: #ffffff;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #007bff;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 1rem;
+      display: block;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      margin-top: 2rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 2rem;
+      background: #e9f7ef;
+      padding: 1rem;
+      border-left: 4px solid #28a745;
+      border-radius: 0.5rem;
+      animation: fadeIn 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📘 Hitung Ukuran Spiral & Punggung Buku</h1>
+
+    <label for="lembar">Jumlah Lembar Isi:</label>
+    <input type="number" id="lembar" placeholder="Contoh: 100" />
+
+    <label for="jenisKertas">Jenis Kertas Isi:</label>
+    <select id="jenisKertas">
+      <option value="" disabled selected>Pilih kertas isi</option>
+    </select>
+
+    <button onclick="hitungKetebalan()">🔍 Hitung Ukuran</button>
+
+    <div class="result" id="hasil" style="display:none;"></div>
+  </div>
+
+  <script>
+    const dataKertas = {
+      "HVS 70/80": 0.095,
+      "HVS 100": 0.124,
+      "AP 120": 0.11,
+      "AP 150": 0.13,
+      "AP 210": 0.22,
+      "AP 260": 0.29,
+      "AP 310": 0.36,
+      "BC/blues": 0.31,
+      "Jasmin / Copen": 0.2,
+      "Concord": 0.37
+    };
+
+    const spiralList = [
+      { ukuran: "Spiral 5/16", max: 5 },
+      { ukuran: "Spiral 3/8",  max: 7 },
+      { ukuran: "Spiral 7/16", max: 8 },
+      { ukuran: "Spiral 1/2",  max: 9.5 },
+      { ukuran: "Spiral 9/16", max: 12 },
+      { ukuran: "Spiral 5/8",  max: 13 },
+      { ukuran: "Spiral 3/4",  max: 15 },
+      { ukuran: "Spiral 1",    max: 20 },
+      { ukuran: "Spiral 1 1/4",max: 28 }
+    ];
+
+    const jenisKertasSelect = document.getElementById("jenisKertas");
+    for (let jenis in dataKertas) {
+      jenisKertasSelect.add(new Option(jenis, jenis));
+    }
+
+    function hitungKetebalan() {
+      const lembar = parseInt(document.getElementById("lembar").value);
+      const isi = document.getElementById("jenisKertas").value;
+
+      if (!lembar || !isi) {
+        alert("Mohon lengkapi semua kolom.");
+        return;
+      }
+
+      const tebalIsi = lembar * dataKertas[isi];
+      const total = tebalIsi
+
+      const spiral = spiralList.find(s => total <= s.max);
+      const hasil = document.getElementById("hasil");
+      hasil.style.display = "block";
+      hasil.innerHTML = `
+        🔩 <b>Saran Spiral:</b> ${spiral ? spiral.ukuran : "❌ Tidak ada spiral yang cukup"}
+        <br><b>Total Ketebalan (mm):</b> ${total.toFixed(2)}
+      `;
+    }
+  </script>
+</body>
+</html>
