@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hitung Sisi A3 Softcover</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f8;
+      padding: 30px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      animation: slideUp 0.6s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    h2 {
+      text-align: center;
+      color: #0077cc;
+      margin-bottom: 20px;
+    }
+    h2 i {
+      margin-right: 10px;
+    }
+    label {
+      margin-top: 12px;
+      display: block;
+      font-weight: 500;
+      color: #333;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    button {
+      background-color: #0077cc;
+      color: white;
+      margin-top: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    .result {
+      background: #f1f9ff;
+      padding: 20px;
+      margin-top: 25px;
+      border-left: 5px solid #0077cc;
+      font-size: 16px;
+      border-radius: 8px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .result p {
+      margin: 10px 0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><i class="fas fa-book-open"></i>Hitung Sisi A3 Softcover</h2>
+
+    <label for="ukuran"><i class="fas fa-ruler-combined"></i> Ukuran Softcover</label>
+    <select id="ukuran">
+      <option value="A4">A4</option>
+      <option value="A5">A5</option>
+      <option value="A6">A6</option>
+    </select>
+
+    <label for="halamanIsi"><i class="fas fa-file-alt"></i> Jumlah Halaman Isi per Buku</label>
+    <input type="number" id="halamanIsi" placeholder="Contoh: 12" min="0" />
+
+    <label for="jumlahBuku"><i class="fas fa-copy"></i> Jumlah Buku yang Dicetak</label>
+    <input type="number" id="jumlahBuku" placeholder="Contoh: 5" min="1" />
+
+    <label for="tipeIsi"><i class="fas fa-print"></i> Tipe Cetak Isi</label>
+    <select id="tipeIsi">
+      <option value="1">1 Sisi</option>
+      <option value="2">Bolak-balik</option>
+    </select>
+
+    <label for="kertasIsi"><i class="fas fa-file-invoice"></i> Jenis Kertas Isi</label>
+    <select id="kertasIsi">
+      <option value="HVS80+">HVS80+</option>
+      <option value="HVS100+">HVS 100+</option>
+      <option value="AP120">AP120</option>
+      <option value="AP150">AP150</option>
+      <option value="AP210">AP210</option>
+      <option value="AP260">AP260</option>
+      <option value="AP310">AP310</option>
+      <option value="Blushwhite">BC/Blushwhite</option>
+      <option value="Jasmine">Jasmine</option>
+      <option value="Copen">Copen</option>
+      <option value="Jasmine">Concord</option>
+    </select>
+
+    <button onclick="hitung()"><i class="fas fa-calculator"></i> Hitung</button>
+
+    <div class="result" id="hasil"></div>
+  </div>
+
+  <script>
+    function hitung() {
+      const ukuran = document.getElementById("ukuran").value;
+      const halamanIsi = parseInt(document.getElementById("halamanIsi").value);
+      const jumlahBuku = parseInt(document.getElementById("jumlahBuku").value);
+      const tipeIsi = parseInt(document.getElementById("tipeIsi").value);
+      const hasil = document.getElementById("hasil");
+      const jenisKertasIsi = document.getElementById("kertasIsi").value;
+
+      if (isNaN(halamanIsi) || isNaN(jumlahBuku)) {
+        hasil.innerHTML = "<p>Mohon isi semua data dengan benar.</p>";
+        return;
+      }
+
+      let totalHalamanIsi = halamanIsi;
+      if (tipeIsi === 2) {
+        totalHalamanIsi += 1;
+      }
+      totalHalamanIsi *= jumlahBuku;
+
+      let divisor = 1;
+      if (ukuran === "A4") divisor = 2;
+      else if (ukuran === "A5") divisor = 4;
+      else if (ukuran === "A6") divisor = 8;
+
+      let sisiKasar = totalHalamanIsi / divisor;
+let totalSisiIsi = Math.ceil(sisiKasar);
+if (tipeIsi === 2 && totalSisiIsi % 2 !== 0) {
+  totalSisiIsi += 1; // Jika ganjil, naikkan ke genap
+}
+
+      const totalSisi = totalSisiIsi;
+
+      // Keterangan impose
+      let keteranganImpose = "";
+      let catatanTambahan = "";
+      if (!isNaN(jumlahBuku) && (ukuran === "A4" || ukuran === "A5" || ukuran === "A6")) {
+        let sisa = jumlahBuku;
+        if (ukuran === "A4") {
+          const r2 = Math.floor(sisa / 2);
+          sisa %= 2;
+          const cs2 = sisa;
+          keteranganImpose = `${r2 > 0 ? "R2 " + r2 + "x " : ""}${cs2 > 0 ? "CS2 " + cs2 + "x" : ""}`;
+        } else if (ukuran === "A5") {
+          const r4 = Math.floor(sisa / 4);
+          sisa %= 4;
+          const csr = Math.floor(sisa / 2);
+          const cs4 = sisa % 2;
+          keteranganImpose = `${r4 > 0 ? "R4 " + r4 + "x " : ""}${csr > 0 ? "CSR " + csr + "x " : ""}${cs4 > 0 ? "CS4 " + cs4 + "x" : ""}`;
+        } else if (ukuran === "A6") {
+          const r8 = Math.floor(sisa / 8);
+          sisa %= 8;
+          let csr4 = 0;
+          let cs8 = 0;
+          if (sisa === 4) {
+            csr4 = 1;
+          } else if (sisa === 1) {
+            cs8 = 1;
+          } else if (sisa !== 0) {
+            cs8 = sisa;
+            catatanTambahan = "<p><i class='fas fa-info-circle'></i> <strong>Catatan:</strong> Perlu dibinder manual untuk CS8 lebih dari 1.</p>";
+          }
+          keteranganImpose = `${r8 > 0 ? "R8 " + r8 + "x " : ""}${csr4 > 0 ? "CSR4 " + csr4 + "x " : ""}${cs8 > 0 ? "CS8 " + cs8 + "x" : ""}`;
+        }
+      }
+
+      hasil.innerHTML = `
+        <p><i class="fas fa-file-alt"></i> Total sisi A3 untuk isi (${jenisKertasIsi}): <strong>${totalSisiIsi}</strong></p>
+        <p><i class="fas fa-file-invoice"></i> <strong>Total semua sisi A3: ${totalSisi}</strong></p>
+        ${keteranganImpose !== "" ? `<p><i class='fas fa-print'></i> <strong>Impose: ${keteranganImpose.trim()}</strong></p>` : ""}
+        ${catatanTambahan}
+      `;
+    }
+  </script>
+</body>
+</html>
