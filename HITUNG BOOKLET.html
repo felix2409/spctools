@@ -92,23 +92,6 @@
     <label for="jumlahBuku"><i class="fas fa-copy"></i> Jumlah Buku yang Dicetak</label>
     <input type="number" id="jumlahBuku" placeholder="Contoh: 5" min="1" />
 
-    <label for="pakaiCover"><i class="fas fa-layer-group"></i> Apakah Menggunakan Cover?</label>
-    <select id="pakaiCover" onchange="toggleCover()">
-      <option value="tidak">Tidak</option>
-      <option value="ya">Ya</option>
-    </select>
-
-    <div id="coverOptions" style="display: none;">
-      <label for="halamanCover"><i class="fas fa-book"></i> Jumlah Halaman Cover per Buku</label>
-      <input type="number" id="halamanCover" placeholder="Contoh: 4" min="0" />
-
-      <label for="tipeCover"><i class="fas fa-print"></i> Tipe Cetak Cover</label>
-      <select id="tipeCover">
-        <option value="1">1 Sisi</option>
-        <option value="2">Bolak-balik</option>
-      </select>
-    </div>
-
     <label for="kertasIsi"><i class="fas fa-file-invoice"></i> Jenis Kertas Isi</label>
     <select id="kertasIsi">
       <option value="HVS80+">HVS80+</option>
@@ -118,23 +101,10 @@
       <option value="AP210">AP210</option>
       <option value="AP260">AP260</option>
       <option value="AP310">AP310</option>
-      <option value="Blushwhite">Blushwhite</option>
+      <option value="Blushwhite">BC/Blushwhite</option>
       <option value="Jasmine">Jasmine</option>
       <option value="Copen">Copen</option>
-    </select>
-
-    <label for="kertasCover"><i class="fas fa-layer-group"></i> Jenis Kertas Cover</label>
-    <select id="kertasCover">
-      <option value="HVS80+">HVS80+</option>
-      <option value="HVS100+">HVS 100+</option>
-      <option value="AP120">AP120</option>
-      <option value="AP150">AP150</option>
-      <option value="AP210">AP210</option>
-      <option value="AP260">AP260</option>
-      <option value="AP310">AP310</option>
-      <option value="Blushwhite">Blushwhite</option>
-      <option value="Jasmine">Jasmine</option>
-      <option value="Copen">Copen</option>
+	  <option value="Copen">Concord</option>
     </select>
 
     <button onclick="hitung()"><i class="fas fa-calculator"></i> Hitung</button>
@@ -143,17 +113,10 @@
   </div>
 
   <script>
-    function toggleCover() {
-      const coverSection = document.getElementById("coverOptions");
-      const pakaiCover = document.getElementById("pakaiCover").value;
-      coverSection.style.display = pakaiCover === "ya" ? "block" : "none";
-    }
-
     function hitung() {
       const ukuran = document.getElementById("ukuran").value;
       const halamanIsi = parseInt(document.getElementById("halamanIsi").value);
       const jumlahBuku = parseInt(document.getElementById("jumlahBuku").value);
-      const pakaiCover = document.getElementById("pakaiCover").value === "ya";
       const hasil = document.getElementById("hasil");
 
       if (isNaN(halamanIsi) || isNaN(jumlahBuku)) {
@@ -167,52 +130,35 @@
       const totalHalamanIsi = (halamanIsi + halamanKosong) * jumlahBuku;
       const lembarIsi = Math.ceil(totalHalamanIsi / halamanPerLembar);
       const sisiIsi = lembarIsi * 2;
-
       const jenisKertasIsi = document.getElementById("kertasIsi").value;
-      const jenisKertasCover = document.getElementById("kertasCover").value;
 
-      let sisiCover = 0;
-      if (pakaiCover) {
-        const halamanCover = parseInt(document.getElementById("halamanCover").value);
-        const tipeCover = parseInt(document.getElementById("tipeCover").value);
-        if (!isNaN(halamanCover)) {
-          const totalHalamanCover = halamanCover * jumlahBuku;
-          const halamanPerSisi = ukuran === "A4" ? 2 : ukuran === "A5" ? 4 : 8;
-          const lembarCover = Math.ceil(totalHalamanCover / halamanPerSisi);
-          sisiCover = lembarCover;
-        }
-      }
-
-      const totalSisi = sisiIsi + sisiCover;
       hasil.innerHTML = `
         <p><i class="fas fa-file"></i> Halaman kosong per buku (isi): <strong>${halamanKosong}</strong></p>
         <p><i class="fas fa-file-alt"></i> Total sisi A3 untuk isi (${jenisKertasIsi}): <strong>${sisiIsi}</strong></p>
-        ${pakaiCover ? `<p><i class="fas fa-layer-group"></i> Total sisi A3 untuk cover (${jenisKertasCover}): <strong>${sisiCover}</strong></p>` : ""}
-        <p><i class="fas fa-file-invoice"></i> <strong>Total semua sisi A3: ${totalSisi}</strong></p>
+        <p><i class="fas fa-file-invoice"></i> <strong>Total semua sisi A3: ${sisiIsi}</strong></p>
       `;
-	  
-	  // Tambahan keterangan impose (berdasarkan jumlahBuku dan ukuran)
-let keteranganImpose = "";
-if (!isNaN(jumlahBuku)) {
-  if (ukuran === "A5") {
-    let sisa = jumlahBuku;
-    const r2 = Math.floor(sisa / 2);
-    sisa = sisa % 2;
-    const cs2 = sisa;
-    keteranganImpose = `${r2 > 0 ? "R2 " + r2 + "x " : ""}${cs2 > 0 ? "CS2 " + cs2 + "x" : ""}`;
-  } else if (ukuran === "A6") {
-    let sisa = jumlahBuku;
-    const r4 = Math.floor(sisa / 4);
-    sisa = sisa % 4;
-    const csr = Math.floor(sisa / 2);
-    const cs4 = sisa % 2;
-    keteranganImpose = `${r4 > 0 ? "R4 " + r4 + "x " : ""}${csr > 0 ? "CSR " + csr + "x " : ""}${cs4 > 0 ? "CS4 " + cs4 + "x" : ""}`;
-  }
-}
-if (keteranganImpose !== "") {
-  hasil.innerHTML += `<p><i class='fas fa-print'></i> <strong>Impose: ${keteranganImpose.trim()}</strong></p>`;
-}
 
+      // Keterangan impose
+      let keteranganImpose = "";
+      if (!isNaN(jumlahBuku)) {
+        if (ukuran === "A5") {
+          let sisa = jumlahBuku;
+          const r2 = Math.floor(sisa / 2);
+          sisa = sisa % 2;
+          const cs2 = sisa;
+          keteranganImpose = `${r2 > 0 ? "R2 " + r2 + "x " : ""}${cs2 > 0 ? "CS2 " + cs2 + "x" : ""}`;
+        } else if (ukuran === "A6") {
+          let sisa = jumlahBuku;
+          const r4 = Math.floor(sisa / 4);
+          sisa = sisa % 4;
+          const csr = Math.floor(sisa / 2);
+          const cs4 = sisa % 2;
+          keteranganImpose = `${r4 > 0 ? "R4 " + r4 + "x " : ""}${csr > 0 ? "CSR " + csr + "x " : ""}${cs4 > 0 ? "CS4 " + cs4 + "x" : ""}`;
+        }
+      }
+      if (keteranganImpose !== "") {
+        hasil.innerHTML += `<p><i class='fas fa-print'></i> <strong>Impose: ${keteranganImpose.trim()}</strong></p>`;
+      }
     }
   </script>
 </body>
