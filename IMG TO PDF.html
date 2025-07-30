@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Ubah Gambar ke PDF (47×31 cm)</title>
+  <title>Ubah Gambar ke PDF</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -16,16 +16,13 @@
       color: #0077cc;
       margin-bottom: 1rem;
     }
-    input[type="file"] {
+    input[type="file"], select {
       padding: 1rem;
       border: 2px dashed #ccc;
       border-radius: 10px;
       background: white;
       cursor: pointer;
-      transition: border-color 0.3s ease;
-    }
-    input[type="file"]:hover {
-      border-color: #0077cc;
+      margin: 0.5rem;
     }
     button {
       margin-top: 1.5rem;
@@ -52,18 +49,10 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       animation: fadeIn 0.5s ease;
     }
-    li {
-      margin-bottom: 0.5rem;
-    }
-    canvas {
-      display: none;
-    }
-    .status-ok {
-      color: #2ecc71;
-    }
-    .status-fail {
-      color: #e74c3c;
-    }
+    li { margin-bottom: 0.5rem; }
+    canvas { display: none; }
+    .status-ok { color: #2ecc71; }
+    .status-fail { color: #e74c3c; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -72,9 +61,22 @@
 </head>
 <body>
 
-  <h2><i class="fas fa-images"></i> Ubah Beberapa Gambar ke PDF (47×31 cm)</h2>
+  <h2><i class="fas fa-images"></i> Ubah Gambar ke PDF</h2>
+
+  <label><input type="file" id="upload" accept="image/*" multiple></label><br>
   <label>
-    <input type="file" id="upload" accept="image/*" multiple>
+    <select id="ukuran">
+      <option value="470x310">47×31 cm</option>
+      <option value="480x320">48×32 cm</option>
+      <option value="420x297">A3</option>
+      <option value="297x210">A4</option>
+    </select>
+  </label>
+  <label>
+    <select id="orientasi">
+      <option value="landscape">Landscape</option>
+      <option value="portrait">Portrait</option>
+    </select>
   </label>
   <br>
   <button onclick="convertAll()"><i class="fas fa-file-pdf"></i> Ubah & Unduh PDF</button>
@@ -89,7 +91,7 @@
 
     function updateStatus(text, success = true) {
       const li = document.createElement('li');
-      li.innerHTML = success 
+      li.innerHTML = success
         ? `<i class='fas fa-check-circle'></i> <span class='status-ok'>${text}</span>`
         : `<i class='fas fa-exclamation-circle'></i> <span class='status-fail'>${text}</span>`;
       statusList.appendChild(li);
@@ -98,6 +100,9 @@
     async function convertAll() {
       statusList.innerHTML = '';
       const files = document.getElementById('upload').files;
+      const selectedUkuran = document.getElementById('ukuran').value;
+      const selectedOrientasi = document.getElementById('orientasi').value;
+
       if (!files.length) {
         alert("Silakan pilih gambar terlebih dahulu.");
         return;
@@ -105,14 +110,14 @@
 
       for (const file of files) {
         try {
-          await processImage(file);
+          await processImage(file, selectedUkuran, selectedOrientasi);
         } catch (err) {
           updateStatus(`Gagal: ${file.name}`, false);
         }
       }
     }
 
-    async function processImage(file) {
+    async function processImage(file, selectedUkuran, selectedOrientasi) {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = function (event) {
@@ -126,13 +131,14 @@
 
             const imgDataURL = canvas.toDataURL('image/jpeg', 1.0);
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-              orientation: 'portrait',
-              unit: 'mm',
-              format: [310, 470] // 47x31 cm dalam mm
-            });
 
-            pdf.addImage(imgDataURL, 'JPEG', 0, 0, 310, 470);
+            const [w, h] = selectedUkuran.split('x').map(Number);
+            const width = selectedOrientasi === 'portrait' ? Math.min(w, h) : Math.max(w, h);
+            const height = selectedOrientasi === 'portrait' ? Math.max(w, h) : Math.min(w, h);
+            const orientation = selectedOrientasi;
+
+            const pdf = new jsPDF({ orientation, unit: 'mm', format: [width, height] });
+            pdf.addImage(imgDataURL, 'JPEG', 0, 0, width, height);
 
             const baseName = file.name.replace(/\.[^/.]+$/, "");
             pdf.save(`${baseName}.pdf`);
@@ -145,5 +151,6 @@
       });
     }
   </script>
+
 </body>
 </html>
