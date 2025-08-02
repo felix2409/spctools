@@ -132,10 +132,10 @@ function isColorImageData(imageData) {
 
 function toRangeList(pages) {
   if (pages.length === 0) return '-';
-  pages.sort((a, b) => a - b);
+  pages.sort((a,b) => a-b);
   const ranges = [];
   let start = pages[0], end = pages[0];
-  for (let i = 1; i <= pages.length; i++) {
+  for (let i = 1;i<= pages.length;i++) {
     if (pages[i] === end + 1) {
       end = pages[i];
     } else {
@@ -177,7 +177,7 @@ async function handlePDF(file) {
     <div class="status">
       <p><i class="fas fa-file"></i> <strong>Nama File:</strong> ${file.name}</p>
       <p><i class="fas fa-copy"></i> <strong>Total halaman:</strong> ${pdf.numPages}</p>
-      <p><span class="badge badge-blue">Warna: ${warna.lengh=th}</span><br> ${toRangeList(warna)}</p>
+      <p><span class="badge badge-blue">Warna: ${warna.length}</span><br> ${toRangeList(warna)}</p>
       <p><span class="badge badge-gray">Hitam Putih: ${bw.length}</span><br> ${toRangeList(bw)}</p>
     </div>
   `;
