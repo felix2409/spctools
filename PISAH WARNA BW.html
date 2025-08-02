@@ -177,8 +177,8 @@ async function handlePDF(file) {
     <div class="status">
       <p><i class="fas fa-file"></i> <strong>Nama File:</strong> ${file.name}</p>
       <p><i class="fas fa-copy"></i> <strong>Total halaman:</strong> ${pdf.numPages}</p>
-      <p><span class="badge badge-blue">Warna: ${warna.length}</span><br> ${toRangeList(warna)}</p>
-      <p><span class="badge badge-gray">Hitam Putih: ${bw.length}</span><br> ${toRangeList(bw)}</p>
+      <p><span class="badge badge-blue">Warna: ${warna}</span><br> ${toRangeList(warna)}</p>
+      <p><span class="badge badge-gray">Hitam Putih: ${bw}</span><br> ${toRangeList(bw)}</p>
     </div>
   `;
 }
