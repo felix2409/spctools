@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hitung Sisi A3 Softcover</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f8; padding: 30px; }
+    .container { max-width: 700px; margin: auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #0077cc; margin-bottom: 20px; }
+    label { margin-top: 12px; display: block; font-weight: 500; }
+    select, input, button { width: 100%; padding: 10px; margin-top: 6px; border-radius: 8px; border: 1px solid #ccc; }
+    button { background: #0077cc; color: white; margin-top: 20px; font-weight: bold; cursor: pointer; }
+    button:hover { background: #005fa3; }
+    .result { background: #f1f9ff; padding: 20px; margin-top: 25px; border-left: 5px solid #0077cc; border-radius: 8px; }
+    .impose-layout { margin-top: 20px; }
+    .layer { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+    .boxes { gap: 4px; }
+    .grid { display: grid; }
+    .box { width: 30px; height: 40px; border: 1px solid #333; }
+    .label { margin-left: 10px; font-weight: bold; min-width: 80px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Hitung Sisi A3 Softcover</h2>
+  <label>Ukuran Softcover</label>
+  <select id="ukuran">
+    <option value="A4">A4</option>
+    <option value="A5">A5</option>
+    <option value="A6">A6</option>
+  </select>
+  <label>Jumlah Halaman Isi per Buku</label>
+  <input type="number" id="halamanIsi" min="1" />
+  <label>Jumlah Buku</label>
+  <input type="number" id="jumlahBuku" min="1" />
+  <label>Tipe Cetak Isi</label>
+  <select id="tipeIsi">
+    <option value="1">1 Sisi</option>
+    <option value="2">Bolak-balik</option>
+  </select>
+  <button onclick="hitung()">Hitung</button>
+  <div class="result" id="hasil"></div>
+  <div class="impose-layout" id="visual"></div>
+</div>
+<script>
+function randomColor() {
+  let colors = ["#FF5733","#33FF57","#3357FF","#FF33A8","#FFD433","#33FFF5","#8D33FF"];
+  return colors[Math.floor(Math.random()*colors.length)];
+}
+function buatLayer(type, count, kotak) {
+  let visual = document.getElementById("visual");
+  let layer = document.createElement("div");
+  layer.className = "layer";
+  let boxes = document.createElement("div");
+  boxes.className = "boxes grid";
+  let cols = kotak, rows = 1;
+  if(type.includes("8")){cols = 4; rows = 2;}
+  else if(type.includes("4")){cols = 2; rows = 2;}
+  else if(type.includes("2")){cols = 2; rows = 1;}
+  boxes.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
+  boxes.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+  for(let i = 0; i < kotak; i++){
+    let b = document.createElement("div");
+    b.className = "box";
+    if(type.startsWith("R")) b.style.background = "#4CAF50";
+    else if(type.startsWith("CSR")) {
+      if (type === "CSR") {
+        b.style.background = (i < 2) ? "#66ccff" : "#ffcc66";
+      } 
+else if (type === "CSR4") {
+        kotak = 8;
+        cols = 4; rows = 2;
+        b.style.background = (i < 4) ? "#ffee58" : "#4fc3f7";
+
+      } else {
+        b.style.background = "#cccccc";
+      }
+    }
+    
+else if(type.startsWith("CS")) {
+  let uniqueColors = ["#e91e63", "#00bcd4", "#9c27b0", "#8bc34a", "#ff9800", "#3f51b5", "#795548", "#03a9f4"];
+  b.style.background = uniqueColors[i % uniqueColors.length];
+}
+
+    boxes.appendChild(b);
+  }
+  let label = document.createElement("div");
+  label.className = "label";
+  label.innerText = `${type} ${count}x`;
+  layer.appendChild(boxes);
+  layer.appendChild(label);
+  visual.appendChild(layer);
+}
+function hitung() {
+  const ukuran = document.getElementById("ukuran").value;
+  const halaman = parseInt(document.getElementById("halamanIsi").value);
+  const buku = parseInt(document.getElementById("jumlahBuku").value);
+  const tipe = parseInt(document.getElementById("tipeIsi").value);
+  const hasil = document.getElementById("hasil");
+  const visual = document.getElementById("visual");
+  visual.innerHTML = "";
+
+  if (isNaN(halaman) || isNaN(buku)) {
+    hasil.innerHTML = "<p>Mohon isi data dengan benar.</p>";
+    return;
+  }
+
+  let isiPerLembar = (ukuran === "A4") ? 2 : (ukuran === "A5") ? 4 : 8;
+  let totalSisi = 0;
+  let layoutText = "";
+  let r = Math.floor(buku / isiPerLembar);
+  let sisa = buku % isiPerLembar;
+  let csr = 0, cs = 0;
+
+  if ((ukuran === "A6" && sisa >= 4) || (ukuran === "A5" && sisa >= 2)) {
+    csr = 1;
+    sisa -= (ukuran === "A6") ? 4 : 2;
+  }
+  cs = sisa;
+
+  if (tipe === 1) {
+    totalSisi = Math.ceil((halaman * buku) / isiPerLembar);
+  } else {
+    if (halaman % 2 === 0) {
+      totalSisi = Math.ceil((halaman * buku) / isiPerLembar);
+      if (totalSisi % 2 !== 0) totalSisi += 1;
+    } else {
+      const halamanGenap = halaman + 1;
+      let totalR = halamanGenap * r;
+      let totalCSR = csr ? Math.ceil(halamanGenap / (isiPerLembar / 2)) : 0;
+      if (totalCSR % 2 !== 0) totalCSR += 1;
+      let totalCS = cs ? Math.ceil((halamanGenap * cs) / isiPerLembar) : 0;
+      if (totalCS % 2 !== 0) totalCS += 1;
+      totalSisi = totalR + totalCSR + totalCS;
+    }
+  }
+
+  if (r > 0) {
+    layoutText += `R${isiPerLembar} ${r}x `;
+    buatLayer(`R${isiPerLembar}`, r, isiPerLembar);
+  }
+  if (csr > 0) {
+    layoutText += `CSR${isiPerLembar / 2} ${csr}x `;
+    buatLayer(`CSR${isiPerLembar / 2}`, csr, isiPerLembar / 2);
+  }
+  if (cs > 0) {
+    const showBinderNote = (ukuran === "A6");
+    layoutText += `CS${isiPerLembar} ${cs}x${showBinderNote ? " (CS Perlu dibinder!)" : ""}`;
+    buatLayer(`CS${isiPerLembar}`, cs, isiPerLembar);
+  }
+
+  hasil.innerHTML = `<strong>Total semua sisi A3: ${totalSisi}</strong><br><strong>Impose: ${layoutText.trim()}</strong>`;
+}
+</script>
+</body>
+</html>
