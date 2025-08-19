@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Ubah Gambar ke PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background: #eef2f7;
+      text-align: center;
+      color: #333;
+    }
+    h2 {
+      color: #1e3a8a;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+    label, select, input[type="file"] {
+      display: inline-block;
+      margin: 0.7rem;
+    }
+    input[type="file"], select {
+      padding: 1.1rem 1.5rem;
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      font-size: 1rem;
+      min-width: 220px;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 1.2rem 2.5rem;
+      background: #1e3a8a;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      background: #153072;
+      transform: translateY(-2px);
+    }
+    ul {
+      text-align: left;
+      display: inline-block;
+      margin-top: 2rem;
+      font-size: 1rem;
+      padding: 1rem 1.5rem;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      animation: fadeIn 0.5s ease;
+      max-width: 400px;
+    }
+    li { margin-bottom: 0.6rem; }
+    canvas { display: none; }
+    .status-ok { color: #16a34a; }
+    .status-fail { color: #dc2626; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      input[type="file"], select, button {
+        width: 90%;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2><i class="fas fa-images"></i> Ubah Gambar ke PDF</h2>
+
+  <label><input type="file" id="upload" accept="image/*" multiple></label><br>
+
+  <label>
+    <select id="ukuran" onchange="toggleCustomSize(this.value)">
+      <option value="420x297">A3</option>
+      <option value="297x210">A4</option>
+      <option value="210x148.5">A5</option>
+      <option value="470x310">47×31 cm</option>
+      <option value="480x320">48×32 cm</option>
+      <option value="custom">Custom (mm)</option>
+    </select>
+  </label>
+
+  <!-- Input custom -->
+  <div id="customSizeInputs" style="display:none; margin-top:10px;">
+    <input type="number" id="customWidth" placeholder="Lebar (mm)" style="padding:0.5rem;">
+    <input type="number" id="customHeight" placeholder="Tinggi (mm)" style="padding:0.5rem;">
+  </div>
+
+  <label>
+    <select id="orientasi">
+      <option value="portrait">POTRAIT</option>
+      <option value="landscape">LANDSCAPE</option>
+    </select>
+  </label>
+
+  <label>
+    <select id="modeGabung">
+      <option value="gabung">GABUNG (semua gambar jadi 1 PDF)</option>
+      <option value="pisah">PISAH (1 file per gambar)</option>
+    </select>
+  </label>
+
+  <label>
+    <select id="scaleMode">
+	  <option value="fill">Fill</option>
+      <option value="fit">Fit</option>
+      <option value="stretch">Stretch</option>
+    </select>
+  </label>
+  <br>
+
+  <button onclick="convertAll()"><i class="fas fa-file-pdf"></i> Ubah & Unduh PDF</button>
+
+  <canvas id="canvas"></canvas>
+  <ul id="status"></ul>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const statusList = document.getElementById('status');
+
+    function updateStatus(text, success = true) {
+      const li = document.createElement('li');
+      li.innerHTML = success
+        ? `<i class='fas fa-check-circle'></i> <span class='status-ok'>${text}</span>`
+        : `<i class='fas fa-exclamation-circle'></i> <span class='status-fail'>${text}</span>`;
+      statusList.appendChild(li);
+    }
+
+    function toggleCustomSize(value) {
+      document.getElementById('customSizeInputs').style.display =
+        value === 'custom' ? 'block' : 'none';
+    }
+
+    async function getImageData(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const img = new Image();
+          img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            resolve(imgData);
+          };
+          img.onerror = reject;
+          img.src = event.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function convertAll() {
+      statusList.innerHTML = '';
+      const files = document.getElementById('upload').files;
+      const selectedUkuran = document.getElementById('ukuran').value;
+      const selectedOrientasi = document.getElementById('orientasi').value;
+      const modeGabung = document.getElementById('modeGabung').value;
+      const scaleMode = document.getElementById('scaleMode').value;
+
+      if (!files.length) {
+        alert("Silakan pilih gambar terlebih dahulu.");
+        return;
+      }
+
+      let width, height;
+      if (selectedUkuran === "custom") {
+        width = parseFloat(document.getElementById('customWidth').value);
+        height = parseFloat(document.getElementById('customHeight').value);
+        if (!width || !height) {
+          alert("Masukkan ukuran custom dengan benar (mm).");
+          return;
+        }
+      } else {
+        const [w, h] = selectedUkuran.split('x').map(Number);
+        width = selectedOrientasi === 'portrait' ? Math.min(w, h) : Math.max(w, h);
+        height = selectedOrientasi === 'portrait' ? Math.max(w, h) : Math.min(w, h);
+      }
+
+      const orientation = selectedOrientasi;
+      const { jsPDF } = window.jspdf;
+
+      let gabungPDF = null;
+      if (modeGabung === "gabung") {
+        gabungPDF = new jsPDF({ orientation, unit: 'mm', format: [width, height] });
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const imgData = await getImageData(file);
+
+          // Hitung skala sesuai pilihan mode
+          const img = new Image();
+          img.src = imgData;
+          await new Promise(res => { img.onload = res; });
+
+          let x = 0, y = 0, drawWidth = width, drawHeight = height;
+          const imgRatio = img.width / img.height;
+          const pageRatio = width / height;
+
+          if (scaleMode === "fit") {
+            if (imgRatio > pageRatio) {
+              drawWidth = width;
+              drawHeight = width / imgRatio;
+              y = (height - drawHeight) / 2;
+            } else {
+              drawHeight = height;
+              drawWidth = height * imgRatio;
+              x = (width - drawWidth) / 2;
+            }
+          } else if (scaleMode === "fill") {
+            if (imgRatio > pageRatio) {
+              drawHeight = height;
+              drawWidth = height * imgRatio;
+              x = (width - drawWidth) / 2;
+            } else {
+              drawWidth = width;
+              drawHeight = width / imgRatio;
+              y = (height - drawHeight) / 2;
+            }
+          }
+          // else stretch = default penuh halaman
+
+          if (modeGabung === "gabung") {
+            if (i > 0) gabungPDF.addPage([width, height], orientation);
+            gabungPDF.addImage(imgData, 'JPEG', x, y, drawWidth, drawHeight);
+            updateStatus(`Ditambahkan ke PDF: ${file.name}`);
+          } else {
+            const pdf = new jsPDF({ orientation, unit: 'mm', format: [width, height] });
+            pdf.addImage(imgData, 'JPEG', x, y, drawWidth, drawHeight);
+            const baseName = file.name.replace(/\.[^/.]+$/, "");
+            pdf.save(`${baseName}.pdf`);
+            updateStatus(`Selesai: ${baseName}.pdf`);
+          }
+
+        } catch (err) {
+          updateStatus(`Gagal: ${file.name}`, false);
+        }
+      }
+
+      if (modeGabung === "gabung") {
+        gabungPDF.save("gabungan.pdf");
+        updateStatus("Semua gambar digabung ke gabungan.pdf");
+      }
+    }
+  </script>
+
+</body>
+</html>
