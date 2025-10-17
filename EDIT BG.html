@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <title>Edit Background Foto — Pratinjau & Output @ 800 dpi</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root{
+      --bg:#eef2f7; --card:#ffffff; --text:#0f172a; --muted:#475569; --line:#dbe4f1;
+      --brand:#1e3a8a; --brand-2:#3b82f6; --ok:#16a34a; --err:#dc2626;
+      --shadow:0 10px 28px rgba(2,6,23,.10); --radius:14px;
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220; --card:#0f172a; --text:#e5e7eb; --muted:#96a3b8; --line:#1f2a44;
+      --brand:#60a5fa; --brand-2:#3b82f6; --shadow:0 10px 28px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family: Segoe UI, Roboto, system-ui, -apple-system, Arial;
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,.10), transparent),
+                  radial-gradient(1000px 500px at 110% -20%, rgba(30,58,138,.10), transparent),
+                  var(--bg);
+      color:var(--text); padding:24px; margin:0;
+    }
+    header{max-width: 1120px; margin:0 auto 16px; display:flex; align-items:center; justify-content:space-between;}
+    .title{display:flex; align-items:center; gap:.6rem; color:var(--brand); font-weight:800; font-size:1.15rem;}
+    .toolbar{display:flex; gap:.6rem; align-items:center}
+    .btn{border:none; background:var(--brand); color:#fff; font-weight:700; padding:.6rem .9rem; border-radius:12px; cursor:pointer; box-shadow: var(--shadow); transition: transform .15s ease, filter .15s ease;}
+    .btn:hover{transform: translateY(-1px); filter: brightness(1.05)}
+    .btn.icon{width:42px; height:42px; display:grid; place-items:center; padding:0; border-radius:12px}
+
+    .wrap{max-width:1120px; margin:0 auto; display:grid; gap:18px; grid-template-columns: 360px 1fr}
+    @media (max-width: 1000px){ .wrap{ grid-template-columns: 1fr } }
+
+    .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow: var(--shadow); padding:18px;}
+    .panel{display:flex; flex-direction:column; gap:12px}
+    .label{font-size:.9rem; color:var(--muted); font-weight:600}
+
+    .drop{display:flex; align-items:center; gap:12px; padding:14px 16px; border:2px dashed var(--line); border-radius:12px; background:#fff0; cursor:pointer; transition: border-color .15s ease, background .15s ease;}
+    [data-theme="dark"] .drop{background:rgba(255,255,255,0.02)}
+    .drop:hover{border-color: var(--brand-2); background: color-mix(in hsl, var(--brand-2), transparent 92%)}
+    input[type=file]{display:none}
+
+    .seg{display:flex; border:1px solid var(--line); border-radius:12px; padding:4px; gap:4px; background: color-mix(in hsl, var(--bg), #000 0%)}
+    .seg button{flex:1; padding:.55rem; border:none; border-radius:10px; background:transparent; color:var(--text); font-weight:700; cursor:pointer;}
+    .seg button.active{background: color-mix(in hsl, var(--brand-2), transparent 86%); color: var(--brand)}
+    .seg.sm button{padding:.45rem; font-size:.92rem}
+
+    .muted{color:var(--muted); font-size:.92rem}
+
+    .canvasRow{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
+    @media (max-width: 900px){ .canvasRow{ grid-template-columns: 1fr } }
+    .canvasBox{display:grid; place-items:center; background:#fff; border:1px solid var(--line); border-radius:12px; min-height:320px; overflow:auto;}
+    canvas, img{max-width:100%; height:auto; border-radius:10px;}
+    .caption{margin-top:6px; text-align:center; color:var(--muted); font-size:.9rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title"><i class="fa-solid fa-wand-magic-sparkles"></i> Edit Background Foto — Pratinjau & Output</div>
+    <div class="toolbar">
+      <button id="themeBtn" class="btn icon" title="Toggle tema (Light/Dark)"><i class="fa-solid fa-moon"></i></button>
+      <button id="processBtn" class="btn"><i class="fa-solid fa-magic-wand-sparkles"></i> Proses</button>
+      <button id="downloadBtn" class="btn"><i class="fa-solid fa-download"></i> Download</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section class="card">
+      <div class="panel">
+        <label class="label">Pilih Foto</label>
+        <label class="drop" for="fileInput" id="dropArea">
+          <i class="fa-solid fa-upload"></i>
+          <div><strong>Taruh foto di sini / Klik untuk pilih</strong><div class="muted">JPG • PNG • WebP — potret orang</div></div>
+        </label>
+        <input id="fileInput" type="file" accept="image/*">
+
+        <label class="label">Background</label>
+        <div class="seg sm" id="bgSeg">
+          <button data-bg="white" class="active">Putih</button>
+          <button data-bg="red">Merah</button>
+          <button data-bg="blue">Biru</button>
+        </div>
+
+        <label class="label">Mode</label>
+        <div class="seg sm" id="modeSeg">
+          <button data-mode="color" class="active">Normal</button>
+          <button data-mode="gray">Grayscale (BG putih)</button>
+        </div>
+
+        <label class="label">Ukuran Output (Fill + center crop) — 800 dpi</label>
+        <div class="seg sm" id="sizeSeg">
+          <button data-size="3x4" class="active">3×4 cm</button>
+          <button data-size="4x6">4×6 cm</button>
+          <button data-size="2x3">2×3 cm</button>
+        </div>
+
+        <div class="muted">Pratinjau kiri = foto asli. Pratinjau kanan = hasil. Klik <b>Proses</b> setelah ganti pengaturan.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="canvasRow">
+        <div>
+          <div class="canvasBox">
+            <img id="previewImg" alt="Pratinjau foto asli" />
+          </div>
+          <div class="caption">Pratinjau Foto Asli</div>
+        </div>
+        <div>
+          <div class="canvasBox">
+            <canvas id="outCanvas"></canvas>
+          </div>
+          <div class="caption">Hasil Edit (BG solid, 800 dpi, Fill)</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+
+  <script>
+    // ====== Tema ======
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', ()=>{
+      const root=document.documentElement;
+      const now=root.getAttribute('data-theme')||'light';
+      root.setAttribute('data-theme', now==='light'?'dark':'light');
+      themeBtn.innerHTML = now==='light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    });
+
+    // ====== Elemen ======
+    const fileInput = document.getElementById('fileInput');
+    const dropArea = document.getElementById('dropArea');
+    const previewImg = document.getElementById('previewImg');
+    const outCanvas = document.getElementById('outCanvas');
+    const octx = outCanvas.getContext('2d');
+    const bgSeg = document.getElementById('bgSeg');
+    const modeSeg = document.getElementById('modeSeg');
+    const sizeSeg = document.getElementById('sizeSeg');
+    const processBtn = document.getElementById('processBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // ====== State ======
+    const state = {
+      img: null,
+      bg: 'white',
+      mode: 'color',
+      dpi: 800,
+      size: '3x4', // 3x4 | 4x6 | 2x3
+      mask: null
+    };
+
+    const cmToPx = (cm, dpi)=> Math.round((cm/2.54)*dpi);
+    function getSizeCm(){
+      if(state.size==='3x4') return {w:3, h:4};
+      if(state.size==='4x6') return {w:4, h:6};
+      if(state.size==='2x3') return {w:2, h:3};
+      return {w:3, h:4};
+    }
+
+    // ====== Segmented events ======
+    function setActive(segEl, key, val){
+      [...segEl.children].forEach(b=>b.classList.toggle('active', b.dataset[key]===val));
+    }
+    bgSeg.addEventListener('click', e=>{
+      if(e.target.tagName!=='BUTTON') return;
+      state.bg = e.target.dataset.bg;
+      setActive(bgSeg,'bg',state.bg);
+    });
+    modeSeg.addEventListener('click', e=>{
+      if(e.target.tagName!=='BUTTON') return;
+      state.mode = e.target.dataset.mode;
+      setActive(modeSeg,'mode',state.mode);
+    });
+    sizeSeg.addEventListener('click', e=>{
+      if(e.target.tagName!=='BUTTON') return;
+      state.size = e.target.dataset.size;
+      setActive(sizeSeg,'size',state.size);
+    });
+
+    // ====== Drag & Drop / File ======
+    dropArea.addEventListener('dragover',e=>{e.preventDefault();dropArea.style.borderColor='var(--brand-2)'});
+    dropArea.addEventListener('dragleave',e=>{e.preventDefault();dropArea.style.borderColor='var(--line)'});
+    dropArea.addEventListener('drop',e=>{
+      e.preventDefault();
+      dropArea.style.borderColor='var(--line)';
+      if(e.dataTransfer.files.length) { handleFile(e.dataTransfer.files[0]); }
+    });
+    fileInput.addEventListener('change',()=>{
+      if(fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(file){
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = ()=>{
+        state.img = img;
+        previewImg.src = url; // tampilkan pratinjau asli
+        // reset hasil
+        octx.clearRect(0,0,outCanvas.width,outCanvas.height);
+        outCanvas.width = Math.min(900, img.naturalWidth);
+        outCanvas.height = Math.round(outCanvas.width * (img.naturalHeight / img.naturalWidth));
+      };
+      img.onerror = ()=> alert('Gagal memuat gambar.');
+      img.src = url;
+    }
+
+    // ====== MediaPipe Selfie Segmentation ======
+    let selfieSeg;
+    function ensureSelfie(){
+      return new Promise((resolve)=>{
+        if(selfieSeg){ resolve(selfieSeg); return; }
+        selfieSeg = new SelfieSegmentation.SelfieSegmentation({
+          locateFile: (file)=> `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+        });
+        selfieSeg.setOptions({ modelSelection: 1 });
+        selfieSeg.onResults((results)=>{
+          state.mask = results.segmentationMask;  // HTMLCanvasElement
+          compose();
+        });
+        resolve(selfieSeg);
+      });
+    }
+
+    // ====== Proses ======
+    processBtn.addEventListener('click', async ()=>{
+      if(!state.img){ alert('Pilih foto dulu.'); return; }
+      await ensureSelfie();
+      // Kirim gambar asli ke model (ukuran asli)
+      await selfieSeg.send({ image: state.img });
+    });
+
+    // ====== Komposisi (robust, per contoh resmi MediaPipe) ======
+    function compose(){
+      const img = state.img; if(!img) return;
+      const mask = state.mask; // bisa null kalau model gagal — handle fallback
+      // target pixel dari cm & dpi
+      const sz = getSizeCm();
+      const targetW = cmToPx(sz.w, state.dpi);
+      const targetH = cmToPx(sz.h, state.dpi);
+
+      // Kanvas kerja besar: komposit dulu pada ukuran asli gambar
+      const work = document.createElement('canvas');
+      work.width = img.naturalWidth;
+      work.height = img.naturalHeight;
+      const wctx = work.getContext('2d');
+
+      // background color
+      let bgColor = '#ffffff';
+      if(state.mode==='gray'){ bgColor = '#ffffff'; }
+      else if(state.bg==='red'){ bgColor = '#ef4444'; }
+      else if(state.bg==='blue'){ bgColor = '#3b82f6'; }
+
+      if(mask){
+        // langkah sesuai dokumentasi mediapipe
+        // 1) gambar mask
+        wctx.drawImage(mask, 0, 0, work.width, work.height);
+        // 2) source-in → isi area mask dengan BG color
+        wctx.globalCompositeOperation = 'source-in';
+        wctx.fillStyle = bgColor;
+        wctx.fillRect(0, 0, work.width, work.height);
+        // 3) destination-atop → gambar foto, jadi foto tampil di area mask, bg di luar mask
+        wctx.globalCompositeOperation = 'destination-atop';
+        wctx.drawImage(img, 0, 0, work.width, work.height);
+        // 4) normal kembali
+        wctx.globalCompositeOperation = 'source-over';
+        // Grayscale opsional: transform hanya area subjek (kita bisa convert seluruhnya lalu timpa bg)
+        if(state.mode==='gray'){
+          const id = wctx.getImageData(0,0,work.width,work.height);
+          const d = id.data;
+          for(let i=0;i<d.length;i+=4){
+            const y = 0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2];
+            d[i]=d[i+1]=d[i+2]=y;
+          }
+          wctx.putImageData(id,0,0);
+        }
+      }else{
+        // Fallback: kalau mask belum ada, tetap buat BG solid dan gambar foto (tanpa pemotongan)
+        wctx.fillStyle = bgColor;
+        wctx.fillRect(0,0,work.width,work.height);
+        wctx.drawImage(img,0,0,work.width,work.height);
+      }
+
+      // Resize ke ukuran output (Fill + crop center)
+      const out = document.createElement('canvas');
+      out.width = targetW; out.height = targetH;
+      const o2 = out.getContext('2d');
+      o2.imageSmoothingQuality = 'high';
+      o2.fillStyle = bgColor; o2.fillRect(0,0,targetW,targetH);
+      const scale = Math.max(targetW / work.width, targetH / work.height);
+      const drawW = Math.ceil(work.width * scale);
+      const drawH = Math.ceil(work.height * scale);
+      const dx = Math.round((targetW - drawW)/2);
+      const dy = Math.round((targetH - drawH)/2);
+      o2.drawImage(work, dx, dy, drawW, drawH);
+
+      // Render ke kanvas hasil
+      outCanvas.width = out.width;
+      outCanvas.height = out.height;
+      octx.clearRect(0,0,outCanvas.width,outCanvas.height);
+      octx.drawImage(out,0,0);
+    }
+
+    // ====== Download (iOS-safe) ======
+    downloadBtn.addEventListener('click', ()=>{
+      if(outCanvas.width === 0 || outCanvas.height === 0){
+        alert('Belum ada hasil. Klik Proses dulu.');
+        return;
+      }
+      const dataURL = outCanvas.toDataURL('image/jpeg', 0.95);
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = `edited-${state.size}-800dpi.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+  </script>
+</body>
+</html>
