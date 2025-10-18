@@ -2,7 +2,7 @@
 <html lang="id" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <title>Edit Background Foto — Preview & Output (Fix Constructor)</title>
+  <title>Edit Background Foto — Preview & Output (Fix for GitHub Pages)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
@@ -38,7 +38,7 @@
 </head>
 <body>
   <header>
-    <div class="title"><i class="fa-solid fa-wand-magic-sparkles"></i> Edit Background Foto — Pratinjau & Output (Fix Constructor)</div>
+    <div class="title"><i class="fa-solid fa-wand-magic-sparkles"></i> Edit Background Foto — Pratinjau & Output</div>
     <div class="toolbar">
       <button id="downloadBtn" class="btn"><i class="fa-solid fa-download"></i> Download</button>
     </div>
@@ -97,8 +97,14 @@
     </section>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+  <!-- 1) Import ESM supaya SelfieSegmentation selalu tersedia di window -->
+  <script type="module">
+    import { SelfieSegmentation as _SelfieSeg } from "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js";
+    // expose ke global supaya dipakai script non-module di bawah
+    window.SelfieSegmentation = _SelfieSeg;
+  </script>
 
+  <!-- 2) App logic (non-module) -->
   <script>
     const $ = (s)=>document.querySelector(s);
     const logEl = $('#log');
@@ -156,13 +162,13 @@
     async function ensureSelfie(){
       if(selfieSeg) return true;
       try{
-        if(typeof SelfieSegmentation === 'undefined'){
-          log('CDN belum termuat. Cek koneksi internet.');
+        if(typeof window.SelfieSegmentation === 'undefined'){
+          log('CDN belum termuat (ESM import gagal).');
+          alert('Tidak bisa memuat model dari CDN. Coba reload (Ctrl+F5) atau cek koneksi.');
           return false;
         }
-        // NOTE: constructor adalah SelfieSegmentation (BUKAN SelfieSegmentation.SelfieSegmentation)
-        selfieSeg = new SelfieSegmentation({
-          locateFile: (file)=> `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+        selfieSeg = new window.SelfieSegmentation({
+          locateFile: (file)=> `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`
         });
         selfieSeg.setOptions({ modelSelection: 1 });
         selfieSeg.onResults((results)=>{
@@ -173,7 +179,9 @@
         log('Model siap.');
         return true;
       }catch(err){
+        console.error(err);
         log('Gagal inisialisasi model: '+err);
+        alert('Gagal inisialisasi model segmentasi.');
         return false;
       }
     }
@@ -181,10 +189,11 @@
     async function process(){
       if(!state.img){ alert('Pilih foto dulu.'); return; }
       const ok = await ensureSelfie();
-      if(!ok){ alert('Proses gagal. Pastikan internet aktif untuk memuat model.'); return; }
+      if(!ok){ return; }
       try{
         await selfieSeg.send({ image: state.img });
       }catch(err){
+        console.error(err);
         log('Gagal proses: '+err);
         alert('Proses gagal saat inferensi.');
       }
@@ -195,7 +204,7 @@
       const mask = results && results.segmentationMask;
       const iw = img.naturalWidth, ih = img.naturalHeight;
 
-      // subject via mask (tanpa filter, aman Safari)
+      // subject via mask (tanpa filter)
       const subject = document.createElement('canvas');
       subject.width = iw; subject.height = ih;
       const sctx = subject.getContext('2d');
