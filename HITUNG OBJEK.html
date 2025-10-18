@@ -1,137 +1,126 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hitung & Preview Objek Cetak (mm)</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #eef1f5;
-      padding: 30px;
-      max-width: 1100px;
-      margin: auto;
-    }
-    h2 {
-      text-align: center;
-      color: #0077cc;
-      margin-bottom: 25px;
-    }
-    .input-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: space-between;
-    }
-    .field {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 15px;
-      flex: 1 1 22%;
-      min-width: 200px;
-    }
-    label {
-      font-weight: 600;
-      color: #333;
-      display: block;
-      margin-bottom: 6px;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-    }
-    button {
-      background-color: #0077cc;
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-top: 20px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background-color: #005fa3;
-    }
-    table {
-      width: 100%;
-      margin-top: 30px;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px 10px;
-      border: 1px solid #ccc;
-      text-align: center;
-      font-size: 15px;
-    }
-    th {
-      background: #2c3e50;
-      color: white;
-    }
-    canvas {
-      margin-top: 30px;
-      border: 2px dashed #ccc;
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hitung & Preview Objek Cetak (mm)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --bg:#f6f8fb; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --brand:#0ea5e9; --line:#e5e7eb;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Inter,Segoe UI,Roboto,system-ui,Arial; color:var(--ink);
+    background:var(--bg); padding:24px; max-width:1100px; margin-inline:auto;
+  }
+  h2{margin:0 0 18px; font-weight:700; letter-spacing:.2px; color:#0b6ea6; text-align:center}
+  .panel{
+    display:grid; gap:12px; grid-template-columns:repeat(12,1fr);
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px;
+  }
+  .ctrl{display:flex; flex-direction:column; gap:6px; grid-column:span 3; min-width:200px}
+  .ctrl.wide{grid-column:span 6}
+  .label{font-size:.86rem; color:var(--muted); font-weight:600}
+  .seg{
+    display:inline-flex; padding:4px; gap:4px; background:#f1f5f9; border:1px solid var(--line);
+    border-radius:999px; align-items:center; width:fit-content;
+  }
+  .seg input{display:none}
+  .seg .opt{
+    padding:8px 14px; border-radius:999px; font-weight:600; font-size:.92rem; cursor:pointer; user-select:none;
+    color:#334155;
+  }
+  .seg input:checked + .opt{ background:var(--brand); color:#fff }
+  .row{display:flex; gap:8px; align-items:center}
+  .unit{
+    position:relative; flex:1 1 auto;
+  }
+  input[type=number]{
+    width:100%; padding:10px 40px 10px 12px; border:1px solid var(--line); border-radius:10px;
+    background:#fff; font-size:.95rem; outline:none;
+  }
+  .unit::after{
+    content:attr(data-u); position:absolute; right:10px; top:50%; translate:0 -50%;
+    color:var(--muted); font-size:.85rem; pointer-events:none;
+  }
+  button{
+    all:unset; display:inline-flex; gap:8px; align-items:center; cursor:pointer; margin-top:14px;
+    background:var(--brand); color:#fff; padding:12px 16px; border-radius:10px; font-weight:700;
+  }
+  button:hover{filter:brightness(.95)}
+  table{width:100%; margin-top:18px; border-collapse:collapse; background:var(--card); overflow:hidden;
+        border:1px solid var(--line); border-radius:var(--radius)}
+  th,td{padding:10px 12px; border-top:1px solid var(--line); text-align:center; font-size:.95rem}
+  th{background:#0f172a; color:#fff; border-top:none}
+  canvas{margin-top:18px; width:100%; height:auto; border:2px dashed var(--line); background:#fff; border-radius:10px}
+  @media (max-width:980px){
+    .ctrl{grid-column:span 6}
+    .ctrl.wide{grid-column:span 12}
+  }
+  @media (max-width:620px){
+    .ctrl{grid-column:span 12}
+  }
+</style>
 </head>
 <body>
 
 <h2><i class="fas fa-ruler-combined"></i> Hitung & Preview Objek Cetak</h2>
 
-<div class="input-row">
-  <div class="field">
-    <label><i class="fas fa-shapes"></i> Bentuk Objek:</label>
-    <select id="shapeSelect">
-      <option value="kotak">Kotak</option>
-      <option value="bulat">Bulat</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label><i class="fas fa-expand-arrows-alt"></i> Ukuran Objek (mm)</label>
-    <label><i class="fas fa-arrows-alt-h"></i> Lebar / Diameter:</label>
-    <input type="number" id="objekWidth" value="50">
-    <div id="tinggiField">
-      <label><i class="fas fa-arrows-alt-v"></i> Tinggi (khusus kotak):</label>
-      <input type="number" id="objekHeight" value="60">
+<div class="panel">
+  <!-- Bentuk Objek (Toggle) -->
+  <div class="ctrl">
+    <div class="label">Bentuk Objek</div>
+    <div class="seg" role="tablist" aria-label="Bentuk Objek">
+      <label>
+        <input type="radio" name="shape" value="kotak" checked>
+        <span class="opt">Kotak</span>
+      </label>
+      <label>
+        <input type="radio" name="shape" value="bulat">
+        <span class="opt">Bulat</span>
+      </label>
     </div>
   </div>
 
-  <div class="field">
-    <label><i class="fas fa-border-style"></i> Jarak Antar Objek (mm)</label>
-    <input type="number" id="spacing" value="2">
+  <!-- Ukuran Objek -->
+  <div class="ctrl wide">
+    <div class="label">Ukuran Objek (mm)</div>
+    <div class="row">
+      <div class="unit" data-u="mm">
+        <input type="number" id="objekWidth" value="50" min="0" step="0.1" placeholder="Lebar / Diameter">
+      </div>
+      <div class="unit" data-u="mm" id="tinggiWrap">
+        <input type="number" id="objekHeight" value="60" min="0" step="0.1" placeholder="Tinggi (khusus kotak)">
+      </div>
+    </div>
   </div>
 
-  <div class="field">
-    <label><i class="fas fa-file-alt"></i> Ukuran Media Cetak (mm) — input manual</label>
-    <div style="display:flex; gap:10px;">
-      <input type="number" id="mediaW" value="470" placeholder="Lebar (mm)">
-      <input type="number" id="mediaH" value="310" placeholder="Tinggi (mm)">
+  <!-- Jarak -->
+  <div class="ctrl">
+    <div class="label">Jarak Antar Objek</div>
+    <div class="unit" data-u="mm">
+      <input type="number" id="spacing" value="2" min="0" step="0.1" placeholder="Jarak">
+    </div>
+  </div>
+
+  <!-- Media Cetak -->
+  <div class="ctrl wide">
+    <div class="label">Ukuran Media Cetak (mm)</div>
+    <div class="row">
+      <div class="unit" data-u="mm"><input type="number" id="mediaW" value="470" min="0" step="0.1" placeholder="Lebar"></div>
+      <strong style="color:var(--muted)">×</strong>
+      <div class="unit" data-u="mm"><input type="number" id="mediaH" value="310" min="0" step="0.1" placeholder="Tinggi"></div>
     </div>
   </div>
 </div>
 
-<button onclick="hitung()"><i class="fas fa-calculator"></i> Hitung & Preview</button>
+<button id="btnHitung"><i class="fas fa-calculator"></i> Hitung &amp; Preview</button>
 
 <table id="result">
   <thead>
-    <tr>
-      <th>Ukuran Media</th>
-      <th>Jumlah Objek</th>
-      <th>Keterangan</th>
-    </tr>
+    <tr><th>Ukuran Media</th><th>Jumlah Objek</th><th>Keterangan</th></tr>
   </thead>
   <tbody></tbody>
 </table>
@@ -139,32 +128,38 @@
 <canvas id="previewCanvas" width="800" height="500"></canvas>
 
 <script>
-function hitung() {
-  const shape = document.getElementById("shapeSelect").value;
-  const objW = parseFloat(document.getElementById("objekWidth").value);
-  const objH = parseFloat(document.getElementById("objekHeight").value);
-  const spacing = parseFloat(document.getElementById("spacing").value);
-  const mediaW = parseFloat(document.getElementById("mediaW").value);
-  const mediaH = parseFloat(document.getElementById("mediaH").value);
+function getShape(){
+  return document.querySelector('input[name="shape"]:checked').value;
+}
+
+function toggleHeight(){
+  const isKotak = getShape()==='kotak';
+  document.getElementById('tinggiWrap').style.display = isKotak ? 'block' : 'none';
+}
+
+function hitung(){
+  const shape   = getShape();
+  const objW    = parseFloat(document.getElementById("objekWidth").value)||0;
+  const objH    = parseFloat(document.getElementById("objekHeight").value)||0;
+  const spacing = parseFloat(document.getElementById("spacing").value)||0;
+  const mediaW  = parseFloat(document.getElementById("mediaW").value)||0;
+  const mediaH  = parseFloat(document.getElementById("mediaH").value)||0;
 
   const canvas = document.getElementById("previewCanvas");
   const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
   const scale = Math.min(canvas.width / mediaW, canvas.height / mediaH) * 0.95;
   ctx.fillStyle = "#fff";
-  ctx.fillRect(0, 0, mediaW * scale, mediaH * scale);
-  ctx.strokeStyle = "#999";
-  ctx.strokeRect(0, 0, mediaW * scale, mediaH * scale);
+  ctx.fillRect(0,0,mediaW*scale,mediaH*scale);
+  ctx.strokeStyle = "#cbd5e1";
+  ctx.strokeRect(0,0,mediaW*scale,mediaH*scale);
 
-  let count = 0;
-  let keterangan = "";
+  let count = 0, keterangan = "";
 
-  if (shape === "kotak") {
-    const w = objW + spacing;
-    const h = objH + spacing;
-    const wr = objH + spacing;
-    const hr = objW + spacing;
+  if (shape === "kotak"){
+    const w = objW + spacing, h = objH + spacing;
+    const wr = objH + spacing, hr = objW + spacing;
 
     const colsNormal = Math.floor(mediaW / w);
     const rowsNormal = Math.floor(mediaH / h);
@@ -179,129 +174,79 @@ function hitung() {
     const rowsRotExtra = Math.floor(remainingHeight / hr);
     const countCombo = colsNormal * rowsNormal + colsRotated * rowsRotExtra;
 
-    let best = "normal";
-    count = countNormal;
-    if (countRotated > count) { best = "rotated"; count = countRotated; }
-    if (countCombo > count) { best = "combo"; count = countCombo; }
+    let best = "normal"; count = countNormal;
+    if (countRotated > count){ best="rotated"; count=countRotated; }
+    if (countCombo   > count){ best="combo";   count=countCombo;   }
 
-    ctx.fillStyle = best === "rotated" ? "#e67e22" : "#3498db";
     let yStart = 0;
-
-    if (best === "normal" || best === "combo") {
-      for (let r = 0; r < rowsNormal; r++) {
-        for (let c = 0; c < colsNormal; c++) {
-          const x = c * w * scale;
-          const y = r * h * scale;
-          ctx.fillStyle = "#3498db";
-          ctx.fillRect(x, y, objW * scale, objH * scale);
-          ctx.strokeStyle = "#1f4e70";
-          ctx.strokeRect(x, y, objW * scale, objH * scale);
+    if (best==="normal" || best==="combo"){
+      for (let r=0;r<rowsNormal;r++){
+        for (let c=0;c<colsNormal;c++){
+          const x = c*w*scale, y = r*h*scale;
+          ctx.fillStyle="#3b82f6"; ctx.fillRect(x,y,objW*scale,objH*scale);
+          ctx.strokeStyle="#1d4ed8"; ctx.strokeRect(x,y,objW*scale,objH*scale);
         }
       }
-      yStart = rowsNormal * h * scale;
+      yStart = rowsNormal*h*scale;
     }
-
-    if (best === "rotated" || best === "combo") {
-      const yOffset = best === "combo" ? yStart : 0;
-      const rotRows = best === "combo" ? rowsRotExtra : rowsRotated;
-      const rotCols = colsRotated;
-
-      for (let r = 0; r < rotRows; r++) {
-        for (let c = 0; c < rotCols; c++) {
-          const x = c * wr * scale;
-          const y = yOffset + r * hr * scale;
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.translate(objH * scale, 0);
-          ctx.rotate(Math.PI / 2);
-          ctx.fillStyle = "#ffc966";
-          ctx.fillRect(0, 0, objW * scale, objH * scale);
-          ctx.strokeStyle = "#cc8400";
-          ctx.strokeRect(0, 0, objW * scale, objH * scale);
+    if (best==="rotated" || best==="combo"){
+      const yOffset = best==="combo" ? yStart : 0;
+      const rotRows = best==="combo" ? rowsRotExtra : rowsRotated;
+      for (let r=0;r<rotRows;r++){
+        for (let c=0;c<colsRotated;c++){
+          const x = c*wr*scale, y = yOffset + r*hr*scale;
+          ctx.save(); ctx.translate(x,y); ctx.translate(objH*scale,0); ctx.rotate(Math.PI/2);
+          ctx.fillStyle="#f59e0b"; ctx.fillRect(0,0,objW*scale,objH*scale);
+          ctx.strokeStyle="#b45309"; ctx.strokeRect(0,0,objW*scale,objH*scale);
           ctx.restore();
         }
       }
     }
+    keterangan = `Layout terbaik: ${count} objek (${best==="combo"?"kombinasi rotasi sebagian":best==="rotated"?"rotasi semua":"tanpa rotasi"})`;
+  }else{
+    const d=objW, distX=d+spacing, distYZigzag=(d+spacing)*0.866, distYGrid=d+spacing;
 
-    keterangan = `Layout terbaik: ${count} objek (${best === "combo" ? "kombinasi rotasi sebagian" : best === "rotated" ? "rotasi semua" : "tanpa rotasi"})`;
-  } else if (shape === "bulat") {
-    const d = objW;
-    const distX = d + spacing;
-    const distYZigzag = (d + spacing) * 0.866;
-    const distYGrid = d + spacing;
+    const colsGrid=Math.floor(mediaW/distX), rowsGrid=Math.floor(mediaH/distYGrid);
+    const countGrid=colsGrid*rowsGrid;
 
-    const colsGrid = Math.floor(mediaW / distX);
-    const rowsGrid = Math.floor(mediaH / distYGrid);
-    const countGrid = colsGrid * rowsGrid;
+    const rowsZ=Math.floor(mediaH/distYZigzag);
+    const colsEven=Math.floor(mediaW/distX);
+    const colsOdd =Math.floor((mediaW-distX/2)/distX);
+    let countZ=0; for(let r=0;r<rowsZ;r++){ countZ += r%2===0?colsEven:colsOdd; }
 
-    const rowsZigzag = Math.floor(mediaH / distYZigzag);
-    const colsEven = Math.floor(mediaW / distX);
-    const colsOdd = Math.floor((mediaW - distX / 2) / distX);
-    let countZigzag = 0;
-    for (let r = 0; r < rowsZigzag; r++) {
-      countZigzag += r % 2 === 0 ? colsEven : colsOdd;
-    }
+    const best = (countZ>countGrid) ? "zigzag" : "grid";
+    count = (best==="zigzag") ? countZ : countGrid;
 
-    let bestMethod = "grid";
-    count = countGrid;
-    if (countZigzag > countGrid) {
-      bestMethod = "zigzag";
-      count = countZigzag;
-    }
-
-    if (bestMethod === "grid") {
-      for (let r = 0; r < rowsGrid; r++) {
-        for (let c = 0; c < colsGrid; c++) {
-          const x = (c * distX + d / 2) * scale;
-          const y = (r * distYGrid + d / 2) * scale;
-          ctx.beginPath();
-          ctx.arc(x, y, (d / 2) * scale, 0, 2 * Math.PI);
-          ctx.fillStyle = "#2ecc71";
-          ctx.fill();
-          ctx.strokeStyle = "#1b8f5a";
-          ctx.stroke();
+    if (best==="grid"){
+      for(let r=0;r<rowsGrid;r++){
+        for(let c=0;c<colsGrid;c++){
+          const x=(c*distX + d/2)*scale, y=(r*distYGrid + d/2)*scale;
+          ctx.beginPath(); ctx.arc(x,y,(d/2)*scale,0,2*Math.PI); ctx.fillStyle="#22c55e"; ctx.fill(); ctx.strokeStyle="#15803d"; ctx.stroke();
         }
       }
       keterangan = `Tanpa zigzag: ${count} objek`;
-    } else {
-      for (let r = 0; r < rowsZigzag; r++) {
-        const isOdd = r % 2 === 1;
-        const cols = isOdd ? colsOdd : colsEven;
-        const offsetX = isOdd ? distX / 2 : 0;
-        const y = r * distYZigzag * scale + (d / 2) * scale;
-
-        for (let c = 0; c < cols; c++) {
-          const x = (c * distX + offsetX + d / 2) * scale;
-          ctx.beginPath();
-          ctx.arc(x, y, (d / 2) * scale, 0, 2 * Math.PI);
-          ctx.fillStyle = "#2ecc71";
-          ctx.fill();
-          ctx.strokeStyle = "#1b8f5a";
-          ctx.stroke();
+    }else{
+      for(let r=0;r<rowsZ;r++){
+        const odd=r%2===1, cols=odd?colsOdd:colsEven, offsetX=odd?distX/2:0, y=r*distYZigzag*scale+(d/2)*scale;
+        for(let c=0;c<cols;c++){
+          const x=(c*distX+offsetX + d/2)*scale;
+          ctx.beginPath(); ctx.arc(x,y,(d/2)*scale,0,2*Math.PI); ctx.fillStyle="#22c55e"; ctx.fill(); ctx.strokeStyle="#15803d"; ctx.stroke();
         }
       }
       keterangan = `Zigzag horizontal: ${count} objek`;
     }
   }
 
-  document.querySelector("#result tbody").innerHTML = `
-    <tr>
-      <td>${mediaW} × ${mediaH} mm</td>
-      <td><strong>${count}</strong></td>
-      <td>${keterangan}</td>
-    </tr>
-  `;
+  document.querySelector("#result tbody").innerHTML =
+    `<tr><td>${mediaW} × ${mediaH} mm</td><td><strong>${count}</strong></td><td>${keterangan}</td></tr>`;
 }
 
-document.getElementById("shapeSelect").addEventListener("change", function () {
-  const tinggiField = document.getElementById("tinggiField");
-  tinggiField.style.display = this.value === "kotak" ? "block" : "none";
+document.querySelectorAll('input[name="shape"]').forEach(r=>{
+  r.addEventListener('change', toggleHeight);
 });
+document.getElementById('btnHitung').addEventListener('click',hitung);
 
-window.addEventListener("DOMContentLoaded", () => {
-  const bentuk = document.getElementById("shapeSelect").value;
-  document.getElementById("tinggiField").style.display = bentuk === "kotak" ? "block" : "none";
-});
+window.addEventListener('DOMContentLoaded',()=>{ toggleHeight(); });
 </script>
 
 </body>
