@@ -121,7 +121,7 @@
     const sizeSeg = $('#sizeSeg');
     const downloadBtn = $('#downloadBtn');
 
-    const state = { img:null, bg:'white', mode:'color', size:'3x4', dpi:800, results:null };
+    const state = { img:null, bg:'white', mode:'color', size:'3x4', dpi:96, results:null };
 
     function setActive(segEl, key, val){
       [...segEl.children].forEach(b=>b.classList.toggle('active', b.dataset[key]===val));
@@ -132,7 +132,7 @@
       if(state.size==='2x3') return {w:2,h:3};
       return {w:3,h:4};
     }
-    const cmToPx = (cm, dpi)=> Math.round((cm/2.54)*dpi);
+    const cmToPx = (cm)=> Math.round((cm/2.54)*96); // pakai 96 dpi agar tampil sesuai ukuran sebenarnya
 
     // UI events
     bgSeg.addEventListener('click', e=>{ if(e.target.tagName!=='BUTTON')return; state.bg=e.target.dataset.bg; setActive(bgSeg,'bg',state.bg); if(state.img) process(); });
@@ -244,8 +244,8 @@
 
       // Output sizing (Fill) @ 800 dpi
       const sz = getSizeCm();
-      const targetW = cmToPx(sz.w, state.dpi);
-      const targetH = cmToPx(sz.h, state.dpi);
+      const targetW = cmToPx(sz.w);
+	  const targetH = cmToPx(sz.h);
       const out = document.createElement('canvas');
       out.width = targetW; out.height = targetH;
       const o2 = out.getContext('2d');
