@@ -2,7 +2,7 @@
 <html lang="id" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <title>Edit Background Foto — Preview & Output (96dpi + CDN Fallback)</title>
+  <title>Edit Background Foto — Preview & Output (Fix for GitHub Pages)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
@@ -35,9 +35,6 @@
     .log{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.78rem; color:#cbd5e1; background:#0a1222; border:1px solid var(--line); border-radius:10px; padding:8px; max-height:140px; overflow:auto; white-space:pre-wrap}
     .stat{font-size:.8rem; color:#9ca3af}
   </style>
-  <!-- Load UMD build (non-module) so GitHub Pages/CSP won't block it; defer so it loads before our logic runs. -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js"
-          crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 </head>
 <body>
   <header>
@@ -70,7 +67,7 @@
           <button data-mode="gray">Grayscale (BG putih)</button>
         </div>
 
-        <label class="label">Ukuran Output (Fill + center crop) — 96 dpi</label>
+        <label class="label">Ukuran Output (Fill + center crop) — 800 dpi</label>
         <div class="seg" id="sizeSeg">
           <button data-size="3x4" class="active">3×4 cm</button>
           <button data-size="4x6">4×6 cm</button>
@@ -94,13 +91,20 @@
           <div class="canvasBox">
             <canvas id="outCanvas"></canvas>
           </div>
-          <div class="caption">Hasil (BG solid, Fill, 96 dpi)</div>
+          <div class="caption">Hasil (BG solid, Fill, 800 dpi)</div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- App logic -->
+  <!-- 1) Import ESM supaya SelfieSegmentation selalu tersedia di window -->
+  <script type="module">
+    import { SelfieSegmentation as _SelfieSeg } from "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js";
+    // expose ke global supaya dipakai script non-module di bawah
+    window.SelfieSegmentation = _SelfieSeg;
+  </script>
+
+  <!-- 2) App logic (non-module) -->
   <script>
     const $ = (s)=>document.querySelector(s);
     const logEl = $('#log');
@@ -117,7 +121,6 @@
     const sizeSeg = $('#sizeSeg');
     const downloadBtn = $('#downloadBtn');
 
-    // OPTION 3: use 96 dpi for cm->px conversion for screen/print consistency
     const state = { img:null, bg:'white', mode:'color', size:'3x4', dpi:96, results:null };
 
     function setActive(segEl, key, val){
@@ -129,8 +132,7 @@
       if(state.size==='2x3') return {w:2,h:3};
       return {w:3,h:4};
     }
-    // Fixed: cm -> px strictly at 96 dpi (Option 3)
-    const cmToPx = (cm)=> Math.round((cm/2.54)*96);
+    const cmToPx = (cm)=> Math.round((cm/2.54)*96); // pakai 96 dpi agar tampil sesuai ukuran sebenarnya
 
     // UI events
     bgSeg.addEventListener('click', e=>{ if(e.target.tagName!=='BUTTON')return; state.bg=e.target.dataset.bg; setActive(bgSeg,'bg',state.bg); if(state.img) process(); });
@@ -155,35 +157,16 @@
       img.src = url;
     }
 
-    // ----- MediaPipe loader with robust fallback -----
+    // MediaPipe
     let selfieSeg;
-    async function loadSelfieIfNeeded(){
-      if (selfieSeg) return true;
-
-      // If UMD not present yet (rare if defer works), wait a moment
-      if (typeof window.SelfieSegmentation === 'undefined'){
-        log('SelfieSegmentation belum ada, coba fallback CDN...');
-        // try add fallback <script> to unpkg
-        await new Promise((resolve)=>{
-          const s = document.createElement('script');
-          s.src = 'https://unpkg.com/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js';
-          s.crossOrigin = 'anonymous';
-          s.referrerPolicy = 'no-referrer';
-          s.onload = resolve;
-          s.onerror = resolve; // resolve anyway; we'll check presence below
-          document.head.appendChild(s);
-          // also set timeout safeguard
-          setTimeout(resolve, 2500);
-        });
-      }
-
-      if (typeof window.SelfieSegmentation === 'undefined'){
-        log('Tidak bisa memuat model dari CDN. Coba reload (Ctrl+F5) atau cek koneksi/extension.');
-        alert('Tidak bisa memuat model dari CDN. Coba reload (Ctrl+F5), nonaktifkan ad-block/VPN, atau cek koneksi.');
-        return false;
-      }
-
+    async function ensureSelfie(){
+      if(selfieSeg) return true;
       try{
+        if(typeof window.SelfieSegmentation === 'undefined'){
+          log('CDN belum termuat (ESM import gagal).');
+          alert('Tidak bisa memuat model dari CDN. Coba reload (Ctrl+F5) atau cek koneksi.');
+          return false;
+        }
         selfieSeg = new window.SelfieSegmentation({
           locateFile: (file)=> `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`
         });
@@ -197,7 +180,7 @@
         return true;
       }catch(err){
         console.error(err);
-        log('Gagal inisialisasi model: ' + err);
+        log('Gagal inisialisasi model: '+err);
         alert('Gagal inisialisasi model segmentasi.');
         return false;
       }
@@ -205,7 +188,7 @@
 
     async function process(){
       if(!state.img){ alert('Pilih foto dulu.'); return; }
-      const ok = await loadSelfieIfNeeded();
+      const ok = await ensureSelfie();
       if(!ok){ return; }
       try{
         await selfieSeg.send({ image: state.img });
@@ -259,10 +242,10 @@
       cctx.fillStyle = bgColor; cctx.fillRect(0,0,iw,ih);
       cctx.drawImage(subject,0,0);
 
-      // Output sizing (Fill) @ 96 dpi
+      // Output sizing (Fill) @ 800 dpi
       const sz = getSizeCm();
       const targetW = cmToPx(sz.w);
-      const targetH = cmToPx(sz.h);
+	  const targetH = cmToPx(sz.h);
       const out = document.createElement('canvas');
       out.width = targetW; out.height = targetH;
       const o2 = out.getContext('2d');
@@ -288,7 +271,7 @@
       if(outCanvas.width===0){ alert('Belum ada hasil. Tunggu proses selesai.'); return; }
       const a=document.createElement('a');
       a.href = outCanvas.toDataURL('image/jpeg', 0.95);
-      a.download = `edited-${state.size}-96dpi.jpg`;
+      a.download = `edited-${state.size}-800dpi.jpg`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     });
   </script>
