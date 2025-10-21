@@ -3,187 +3,170 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BOOKLET PREVIEW — Modern</title>
+  <title>Flipbook Preview — tanpa mode</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b1220;--bg2:#0f172a;--ink:#dbeafe;--muted:#94a3b8;--brand:#38bdf8;--card:#0f172a;}
-    *{box-sizing:border-box}html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial;color:var(--ink);
-      background:radial-gradient(1200px 800px at 10% -10%, #1e293b 0%, transparent 60%),
-                 radial-gradient(1200px 900px at 110% 10%, #0ea5e9 0%, transparent 50%),
-                 radial-gradient(1000px 700px at 50% 120%, #3730a3 0%, transparent 60%),
-                 linear-gradient(180deg, var(--bg), var(--bg2));
-      background-attachment:fixed;}
-    header{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px) saturate(130%);
-      background:linear-gradient(180deg, rgba(2,6,23,.8), rgba(2,6,23,.35) 70%, transparent);
-      border-bottom:1px solid rgba(148,163,184,.18);}
+    :root{--bg:#0b1220;--panel:#0f172a;--ink:#e5f0ff;--muted:#9fb0c7;--ring:#60a5fa;--accent:#22d3ee}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial;background:radial-gradient(1000px 700px at 5% -5%, #0ea5e9 0, transparent 50%),linear-gradient(180deg,#0b1220,#0b1220 40%,#0a0f1c);color:var(--ink)}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(2,6,23,.8),rgba(2,6,23,.35) 70%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid rgba(148,163,184,.18)}
     .wrap{max-width:1200px;margin:0 auto;padding:14px 18px}
-    h1{margin:0;font-size:22px;letter-spacing:.3px;font-weight:800;
-      background:linear-gradient(90deg,#38bdf8,#b3e1ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
-    .chip{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(148,163,184,.12),rgba(148,163,184,.05));border:1px solid rgba(148,163,184,.22);border-radius:14px;padding:10px 12px;box-shadow:0 6px 24px rgba(2,6,23,.3) inset,0 8px 30px rgba(2,6,23,.28)}
-    label.small{font-size:12px;color:#94a3b8}
-    input[type=file],select{color:var(--ink);background:#0b1220;border:1px solid rgba(148,163,184,.25);border-radius:10px;padding:8px 10px}
-    select:hover,input[type=file]:hover{border-color:#38bdf8}
-    .help{font-size:12px;color:#94a3b8;margin-top:8px}
-    main{max-width:1200px;margin:22px auto;padding:0 18px 80px;display:grid;grid-template-columns:260px 1fr;gap:18px}
-    @media (max-width:980px){main{grid-template-columns:1fr}}
-    .side{position:sticky;top:86px;height:calc(100svh - 110px);overflow:auto;padding-right:4px}
-    .card{background:linear-gradient(180deg,rgba(148,163,184,.10),rgba(148,163,184,.06));border:1px solid rgba(148,163,184,.20);border-radius:16px;padding:12px;box-shadow:0 8px 32px rgba(2,6,23,.45)}
-    .card h3{margin:0 0 8px;font-size:13px;color:#cbd5e1;letter-spacing:.2px}
-    .thumbs{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:50vh;overflow:auto}
-    .thumb{position:relative;border:1px dashed rgba(148,163,184,.35);border-radius:10px;padding:6px;background:#0b1220;cursor:pointer;transition:.15s}
-    .thumb:hover{transform:translateY(-1px);border-color:#38bdf8}
-    .thumb .num{position:absolute;top:6px;left:6px;font-size:11px;color:#e2e8f0;background:#0b1220c0;border:1px solid rgba(148,163,184,.35);border-radius:999px;padding:1px 6px}
-    .sheets{display:flex;flex-direction:column;gap:18px}
-    .sheet{background:linear-gradient(180deg,rgba(148,163,184,.10),rgba(148,163,184,.06));border:1px solid rgba(148,163,184,.20);border-radius:18px;padding:14px;box-shadow:0 12px 50px rgba(2,6,23,.5)}
-    .sheet h4{margin:0 0 10px;font-size:13px;color:#cbd5e1;display:flex;justify-content:space-between}
-    .spread{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;justify-content:center}
-    .page{position:relative;border:1px dashed rgba(148,163,184,.35);border-radius:12px;padding:8px;background:#0b1220}
-    canvas{display:block;max-width:100%;height:auto;border-radius:8px}
-    .badge{position:absolute;top:8px;left:8px;background:#020617;color:#e2e8f0;border:1px solid rgba(148,163,184,.35);border-radius:999px;padding:3px 8px;font-size:11px}
+    h1{margin:0;font-size:22px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .bar{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
+    .chip{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(148,163,184,.12),rgba(148,163,184,.06));border:1px solid rgba(148,163,184,.22);border-radius:14px;padding:10px 12px}
+    label{font-size:12px;color:var(--muted)}
+    input[type=file]{color:var(--ink);background:#0b1220;border:1px solid rgba(148,163,184,.25);border-radius:10px;padding:8px 10px}
+    main{max-width:1200px;margin:18px auto;padding:0 18px 40px}
+    .stage{position:relative;background:linear-gradient(180deg,rgba(148,163,184,.10),rgba(148,163,184,.06));border:1px solid rgba(148,163,184,.20);border-radius:18px;box-shadow:0 12px 50px rgba(2,6,23,.5);padding:16px;overflow:hidden}
+    .viewport{position:relative;width:100%;padding-bottom:66%;border-radius:12px;background:#0a0f1c;box-shadow:inset 0 0 0 1px rgba(148,163,184,.12)}
+    .spread{position:absolute;inset:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:10px}
+    .page{position:relative;border:1px dashed rgba(148,163,184,.35);border-radius:10px;background:#0b1220;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    canvas{display:block;max-width:100%;height:auto;border-radius:6px}
     .num{position:absolute;bottom:8px;right:8px;background:#020617b0;border:1px solid rgba(148,163,184,.35);color:#e2e8f0;border-radius:999px;padding:2px 7px;font-size:11px}
+    /* arrows */
+    .nav{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(148,163,184,.25);background:#0b1220;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer;user-select:none}
+    .btn:hover{border-color:var(--ring)}
+    .info{font-size:12px;color:var(--muted)}
+    .thumbs{display:flex;gap:8px;overflow:auto;margin-top:10px;padding-bottom:4px}
+    .th{position:relative;border:1px dashed rgba(148,163,184,.35);border-radius:8px;padding:4px;background:#0b1220;cursor:pointer}
+    .th .num{position:absolute;top:4px;left:4px;right:auto}
+    .active{outline:2px solid var(--accent)}
+    .fade-enter{animation:fade .28s ease-out}
+    @keyframes fade{from{opacity:.2; transform:translateY(4px)}to{opacity:1; transform:none}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>BOOKLET PREVIEW</h1>
-      <div class="toolbar">
-        <div class="chip">
-          <label class="small">PDF sumber</label>
-          <input id="file" type="file" accept="application/pdf" />
-        </div>
-        <div class="chip">
-          <label class="small">Mode</label>
-          <select id="mode"><option value="print">Urutan Cetak (imposition)</option><option value="read" selected>Urutan Baca (spread)</option></select>
-        </div>
-        <div id="warn" class="help"></div>
-      </div>
+<header>
+  <div class="wrap">
+    <h1>Flipbook Preview</h1>
+    <div class="bar">
+      <div class="chip"><label>PDF sumber</label><input id="file" type="file" accept="application/pdf"></div>
+      <div id="status" class="info">Cover muncul di kanan, lalu pasangan 2–3, 4–5, dst. Jika ganjil, ditambah putih di akhir.</div>
     </div>
-  </header>
+  </div>
+</header>
 
-  <main>
-    <aside class="side">
-      <div class="card" style="margin-bottom:12px">
-        <h3>Status</h3>
-        <div id="info" class="help">Pilih PDF 1 halaman per page. Sistem otomatis menambah putih supaya total kelipatan 4.</div>
-      </div>
-      <div class="card">
-        <h3>Thumbnail</h3>
-        <div id="thumbs" class="thumbs"></div>
-      </div>
-    </aside>
-    <section class="sheets" id="sheets"></section>
-  </main>
+<main>
+  <section class="stage">
+    <div class="viewport">
+      <div id="spread" class="spread"></div>
+    </div>
+    <div class="nav">
+      <div class="btn" id="prev">⟵ Sebelumnya</div>
+      <div class="info" id="meta">—</div>
+      <div class="btn" id="next">Berikutnya ⟶</div>
+    </div>
+    <div id="thumbs" class="thumbs"></div>
+  </section>
+</main>
 
 <script>
-// Setup worker
-const warnEl = document.getElementById('warn');
-function warn(msg){ warnEl.textContent = msg; }
-if (window.pdfjsLib){
+// Worker setup: prefer CDN, fallback ./pdfjs
+if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js';
 } else {
-  const s = document.createElement('script'); s.src = './pdfjs/pdf.min.js';
-  s.onload = ()=>{ pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.min.js'; warn('Memakai PDF.js dari lokal /pdfjs.'); };
-  s.onerror = ()=> warn('PDF.js tidak tersedia. Tambahkan file ke /pdfjs atau gunakan koneksi CDN.');
+  const s=document.createElement('script'); s.src='./pdfjs/pdf.min.js';
+  s.onload=()=>{ pdfjsLib.GlobalWorkerOptions.workerSrc='./pdfjs/pdf.worker.min.js'; };
   document.head.appendChild(s);
 }
 
-const elFile = document.getElementById('file');
-const elMode = document.getElementById('mode');
-const elInfo = document.getElementById('info');
-const elSheets = document.getElementById('sheets');
-const elThumbs = document.getElementById('thumbs');
+const elFile=document.getElementById('file');
+const elSpread=document.getElementById('spread');
+const elMeta=document.getElementById('meta');
+const elThumbs=document.getElementById('thumbs');
+const elPrev=document.getElementById('prev');
+const elNext=document.getElementById('next');
+const elStatus=document.getElementById('status');
 
-let pdfDoc = null, srcPageCount = 0, totalForBooklet = 0;
+let pdfDoc=null, srcPages=0, total=0;
+let viewIndex=0; // 0: cover (page 1 alone), then 1: pages(2,3), 2: (4,5), ...
 
-elMode.addEventListener('change', () => { if (pdfDoc) buildAll(true); });
-
-elFile.addEventListener('change', async (e) => {
-  const f = e.target.files && e.target.files[0]; if (!f) return;
-  try {
-    const buf = await f.arrayBuffer();
-    pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-    srcPageCount = pdfDoc.numPages;
-    totalForBooklet = Math.ceil(srcPageCount / 4) * 4;
-    elInfo.innerHTML = `Halaman sumber: <b>${srcPageCount}</b> • Kelipatan 4: <b>${totalForBooklet}</b>`;
-    await buildThumbs();
-    buildAll(true);
-    window.scrollTo({top:0,behavior:'smooth'});
-  } catch (err){ warn('Gagal membuka PDF.'); console.error(err); }
+elFile.addEventListener('change', async (e)=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  try{
+    const buf=await f.arrayBuffer();
+    pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;
+    srcPages=pdfDoc.numPages;
+    total = (srcPages % 2 === 0) ? srcPages : srcPages + 1; // genap
+    viewIndex=0;
+    buildThumbs();
+    renderSpread(true);
+  }catch(err){
+    elStatus.textContent='Gagal membuka PDF.';
+    console.error(err);
+  }
 });
+
+function spreadPagesAt(idx){
+  // idx=0 => cover only (right). After that, pairs (2,3), (4,5),...
+  if (idx===0) return [null, 1]; // left blank, right page 1
+  const left = 2*idx;
+  const right= 2*idx+1;
+  return [left<=total?left:null, right<=total?right:null];
+}
+
+async function renderSpread(scrollTop){
+  if(!pdfDoc) return;
+  const [L,R]=spreadPagesAt(viewIndex);
+  elSpread.innerHTML='';
+  const wrapL=document.createElement('div'); wrapL.className='page fade-enter';
+  const wrapR=document.createElement('div'); wrapR.className='page fade-enter';
+  if(L){ const c=await pageCanvas(L); wrapL.appendChild(c); const n=badge(`p.${L}`); wrapL.appendChild(n); } else { wrapL.appendChild(blankCanvas()); wrapL.appendChild(badge('BLANK')); }
+  if(R){ const c=await pageCanvas(R); wrapR.appendChild(c); const n=badge(`p.${R}`); wrapR.appendChild(n); } else { wrapR.appendChild(blankCanvas()); wrapR.appendChild(badge('BLANK')); }
+  elSpread.appendChild(wrapL); elSpread.appendChild(wrapR);
+  elMeta.textContent = (L?`p.${L}`:'BLANK') + ' | ' + (R?`p.${R}`:'BLANK');
+  highlightThumb(L||R);
+  if(scrollTop){ window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function badge(t){ const b=document.createElement('div'); b.className='num'; b.textContent=t; return b; }
 
 async function buildThumbs(){
   elThumbs.innerHTML='';
-  const lim = Math.min(srcPageCount, 40);
-  for (let p=1;p<=lim;p++){
-    const page = await pdfDoc.getPage(p);
-    const v = page.getViewport({ scale: 0.2 });
-    const c = document.createElement('canvas'); c.width=v.width; c.height=v.height;
-    await page.render({ canvasContext: c.getContext('2d'), viewport: v }).promise;
-    const cell = document.createElement('div'); cell.className='thumb';
-    const tag = document.createElement('div'); tag.className='num'; tag.textContent = p;
-    cell.appendChild(tag); cell.appendChild(c);
-    cell.addEventListener('click', ()=>{
-      const t = document.querySelector(`[data-idx="${p}"]`);
-      if (t) t.scrollIntoView({behavior:'smooth', block:'center'});
+  const limit=Math.min(srcPages, 30);
+  for(let p=1;p<=limit;p++){
+    const t=document.createElement('div'); t.className='th';
+    const c=await pageCanvas(p, 0.18);
+    const n=badge(p); n.style.top='4px'; n.style.left='4px'; n.style.right='auto';
+    t.appendChild(n); t.appendChild(c); elThumbs.appendChild(t);
+    t.addEventListener('click', ()=>{
+      // go to the spread that contains this page
+      if(p===1) viewIndex=0; else viewIndex = Math.ceil((p-1)/2);
+      renderSpread(true);
     });
-    elThumbs.appendChild(cell);
-  }
-  if (srcPageCount>lim){
-    const more=document.createElement('div'); more.className='help'; more.style.marginTop='8px';
-    more.textContent=`Hanya menampilkan ${lim} thumbnail pertama demi performa.`;
-    elThumbs.parentElement.appendChild(more);
   }
 }
 
-function buildAll(resetCache){
-  if (resetCache) window._renderCache = new Map();
-  const mode = elMode.value; const sheets=[];
-  if (mode==='print'){
-    const sheetCount = totalForBooklet/4;
-    for (let i=0;i<sheetCount;i++){
-      const frontLeft  = totalForBooklet - (2*i);
-      const frontRight = 1 + (2*i);
-      const backLeft   = 2 + (2*i);
-      const backRight  = totalForBooklet - 1 - (2*i);
-      sheets.push({ title:`Lembar ${i+1} — FRONT`, pair:[frontLeft,frontRight] });
-      sheets.push({ title:`Lembar ${i+1} — BACK`,  pair:[backLeft, backRight]  });
-    }
-  } else {
-    for (let p=1; p<=totalForBooklet; p+=2) sheets.push({ title:'Spread', pair:[p,p+1] });
-  }
+elPrev.addEventListener('click', ()=>{ if(viewIndex>0){viewIndex--; renderSpread(false);} });
+elNext.addEventListener('click', ()=>{ const maxIndex=Math.ceil(total/2)-1; if(viewIndex<maxIndex){viewIndex++; renderSpread(false);} });
+document.addEventListener('keydown', (e)=>{ if(e.key==='ArrowLeft') elPrev.click(); if(e.key==='ArrowRight') elNext.click(); });
 
-  elSheets.innerHTML='';
-  for (const sh of sheets){
-    const sec=document.createElement('div'); sec.className='sheet';
-    const h=document.createElement('h4'); h.innerHTML=`<span>${sh.title}</span><span class="help">Hal: ${fmt(sh.pair[0])} | ${fmt(sh.pair[1])}</span>`; sec.appendChild(h);
-    const spr=document.createElement('div'); spr.className='spread';
-    spr.appendChild(makePage(sh.pair[0],'KIRI'));
-    spr.appendChild(makePage(sh.pair[1],'KANAN'));
-    sec.appendChild(spr); elSheets.appendChild(sec);
-  }
-  function fmt(n){return (n<1||n>srcPageCount)?`BLANK (${n})`:`p.${n}`;}
+function highlightThumb(page){
+  Array.from(elThumbs.children).forEach(x=>x.classList.remove('active'));
+  if(!page) return;
+  const idx=Math.min(page-1, elThumbs.children.length-1);
+  if(idx>=0) elThumbs.children[idx].classList.add('active');
 }
 
-function makePage(n,side){
-  const w=document.createElement('div'); w.className='page'; w.dataset.idx=n;
-  const b=document.createElement('div'); b.className='badge'; b.textContent=side;
-  const pn=document.createElement('div'); pn.className='num'; pn.textContent=(n<1||n>srcPageCount)?'BLANK':('p.'+n);
-  w.appendChild(b); w.appendChild(pn);
-  getCanvas(n).then(c=> w.insertBefore(c,pn));
-  return w;
+async function pageCanvas(p, scaleOverride){
+  const key='p'+p+'@'+(scaleOverride||1);
+  if(!window._cache) window._cache=new Map();
+  const cache=window._cache;
+  if(cache.has(key)) return clone(cache.get(key));
+  // blank if beyond src range
+  if(p<1 || p>srcPages){ const c=blankCanvas(); cache.set(key,c); return clone(c); }
+  const page=await pdfDoc.getPage(p);
+  const v=page.getViewport({scale: scaleOverride || 1});
+  const c=document.createElement('canvas'); c.width=v.width; c.height=v.height;
+  await page.render({canvasContext:c.getContext('2d',{alpha:false}), viewport:v}).promise;
+  cache.set(key,c); return clone(c);
 }
-async function getCanvas(n){
-  const key='k'+n; if (!window._renderCache) window._renderCache = new Map(); const cache=window._renderCache;
-  if (cache.has(key)) return clone(cache.get(key));
-  if (n<1||n>srcPageCount){ const c=document.createElement('canvas'); c.width=595; c.height=842; const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle='rgba(148,163,184,.5)'; ctx.strokeRect(.5,.5,c.width-1,c.height-1); cache.set(key,c); return clone(c); }
-  const page=await pdfDoc.getPage(n); const v=page.getViewport({scale:1}); const c=document.createElement('canvas'); c.width=Math.ceil(v.width); c.height=Math.ceil(v.height); await page.render({canvasContext:c.getContext('2d',{alpha:false}),viewport:v}).promise; cache.set(key,c); return clone(c);
-}
+function blankCanvas(){ const c=document.createElement('canvas'); c.width=595; c.height=842; const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle='rgba(148,163,184,.5)'; ctx.strokeRect(.5,.5,c.width-1,c.height-1); return c; }
 function clone(src){ const c=document.createElement('canvas'); c.width=src.width; c.height=src.height; c.getContext('2d').drawImage(src,0,0); return c; }
 </script>
 </body>
