@@ -1,173 +1,233 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kalkulator Ukuran Proporsional</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOOKLET PREVIEW – 1 PDF ➜ Imposition (Kelipatan 4)</title>
+  <!-- PDF.js via CDN (works on GitHub Pages over HTTPS) -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
-    :root {
-      --primary-color: #4e9af1;
-      --bg-color: #f9f9f9;
-      --text-color: #333;
-      --card-color: #ffffff;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    .container {
-      background-color: var(--card-color);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 480px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: var(--primary-color);
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-
-    button {
-      background-color: var(--primary-color);
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background-color: #3d85d8;
-    }
-
-    .result {
-      margin-top: 25px;
-      padding: 20px;
-      background-color: #f0f4ff;
-      border-left: 5px solid var(--primary-color);
-      border-radius: 8px;
-      font-size: 1.1rem;
-      display: none;
-    }
-
-    .error {
-      color: red;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px;
-        border-radius: 0;
-        height: 100vh;
-        box-shadow: none;
-      }
-    }
+    :root { --bg:#f3f6fb; --ink:#0f172a; --muted:#64748b; --brand:#1e40af; --card:#fff; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid #e5e7eb;z-index:10}
+    .container{max-width:1100px;margin:0 auto;padding:14px 18px}
+    h1{margin:0 0 8px;font-size:20px;color:var(--brand)}
+    .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    .control{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;box-shadow:0 1px 1px rgba(0,0,0,.04)}
+    label{font-size:12px;color:var(--muted)}
+    input[type=file]{border:none}
+    select, input[type=number], input[type=range]{border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
+    button{border:1px solid #1e40af;background:var(--brand);color:#fff;border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer}
+    button.ghost{background:#fff;color:var(--brand);border-color:#bfd7ff}
+    main{max-width:1100px;margin:18px auto;padding:0 18px 24px}
+    #info{font-size:13px;color:var(--muted);margin-bottom:10px}
+    .sheet{background:var(--card);border:1px solid #e5e7eb;border-radius:16px;padding:14px;margin:14px 0;box-shadow:0 6px 20px rgba(2,6,23,0.06)}
+    .sheet h3{margin:0 0 10px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between}
+    .spread{display:flex;gap:10px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+    .pageWrap{position:relative;border:1px dashed #d1d5db;border-radius:12px;padding:8px;background:#fafafa}
+    canvas{display:block;border-radius:8px}
+    .badge{position:absolute;top:8px;left:8px;background:#111827;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;opacity:.9}
+    .pagenum{position:absolute;bottom:8px;right:8px;background:#ffffffd0;color:#111827;border:1px solid #e5e7eb;border-radius:999px;padding:2px 7px;font-size:11px}
+    .hint{font-size:12px;color:var(--muted)}
+    .warning{color:#b45309;background:#fff7ed;border:1px solid #fed7aa;padding:6px 10px;border-radius:8px}
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <h2>Kalkulator Ukuran Proporsional</h2>
-
-    <div class="form-group">
-      <label for="originalWidth">Lebar Asli (cm):</label>
-      <input type="number" id="originalWidth" step="0.01" placeholder="contoh: 10">
+  <header>
+    <div class="container">
+      <h1>BOOKLET PREVIEW – 1 PDF ➜ Kelipatan 4</h1>
+      <div class="controls">
+        <div class="control">
+          <label>PDF sumber</label>
+          <input id="file" type="file" accept="application/pdf" />
+        </div>
+        <div class="control">
+          <label>Mode</label>
+          <select id="mode">
+            <option value="print">Urutan Cetak (imposition)</option>
+            <option value="read">Urutan Baca (spread)</option>
+          </select>
+        </div>
+        <div class="control">
+          <label>Tinggi halaman (px)</label>
+          <input id="height" type="number" value="380" min="120" max="1600" step="10" />
+        </div>
+        <div class="control">
+          <label>Zoom</label>
+          <input id="zoom" type="range" min="50" max="200" value="100" />
+          <span id="zoomv" class="hint">100%</span>
+        </div>
+        <div class="control">
+          <label>Label nomor</label>
+          <select id="labels">
+            <option value="all">Tampilkan semua</option>
+            <option value="imposed">Nomor asli saja</option>
+            <option value="none">Sembunyikan</option>
+          </select>
+        </div>
+        <button id="rerender" class="ghost">Render ulang</button>
+      </div>
+      <div id="cdnWarn" class="hint"></div>
     </div>
+  </header>
 
-    <div class="form-group">
-      <label for="originalHeight">Tinggi Asli (cm):</label>
-      <input type="number" id="originalHeight" step="0.01" placeholder="contoh: 15">
-    </div>
+  <main>
+    <div id="info">Unggah PDF (1 halaman per page). Sistem otomatis menambah halaman putih di akhir agar total menjadi kelipatan 4.</div>
+    <div id="sheets"></div>
+  </main>
 
-    <div class="form-group">
-      <label for="reference">Gunakan sebagai patokan:</label>
-      <select id="reference">
-        <option value="width">Lebar</option>
-        <option value="height">Tinggi</option>
-      </select>
-    </div>
+<script>
+// Worker dari CDN (akan bekerja di GitHub Pages https)
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.js';
 
-    <div class="form-group">
-      <label for="newSize">Ukuran Patokan Baru (cm):</label>
-      <input type="number" id="newSize" step="0.01" placeholder="contoh: 5">
-    </div>
+const elFile   = document.getElementById('file');
+const elSheets = document.getElementById('sheets');
+const elInfo   = document.getElementById('info');
+const elMode   = document.getElementById('mode');
+const elHeight = document.getElementById('height');
+const elZoom   = document.getElementById('zoom');
+const elZoomV  = document.getElementById('zoomv');
+const elLabels = document.getElementById('labels');
+const elRe     = document.getElementById('rerender');
 
-    <button onclick="calculate()">Hitung Ukuran Proporsional</button>
-    <div class="error" id="errorMsg"></div>
+let pdfDoc = null;
+let srcPageCount = 0;
+let totalForBooklet = 0;
 
-    <div class="result" id="output"></div>
-  </div>
+elZoom.addEventListener('input', () => { elZoomV.textContent = elZoom.value + '%'; });
+elRe.addEventListener('click', () => { if (!pdfDoc) return; buildAll(true); });
+elMode.addEventListener('change', () => { if (pdfDoc) buildAll(false); });
+elHeight.addEventListener('change', () => { if (pdfDoc) buildAll(true); });
+elLabels.addEventListener('change', () => { if (pdfDoc) buildAll(false); });
 
-  <script>
-    function calculate() {
-      const originalWidth = parseFloat(document.getElementById('originalWidth').value);
-      const originalHeight = parseFloat(document.getElementById('originalHeight').value);
-      const reference = document.getElementById('reference').value;
-      const newSize = parseFloat(document.getElementById('newSize').value);
-      const output = document.getElementById('output');
-      const errorMsg = document.getElementById('errorMsg');
+elFile.addEventListener('change', async (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  try {
+    const buf = await f.arrayBuffer();
+    pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+    srcPageCount = pdfDoc.numPages;
+    totalForBooklet = Math.ceil(srcPageCount / 4) * 4;
+    elInfo.innerHTML = `Halaman sumber: <b>${srcPageCount}</b>. Dipadatkan ke kelipatan 4: <b>${totalForBooklet}</b> (tambah putih jika perlu).`;
+    buildAll(true);
+  } catch (err) {
+    document.getElementById('cdnWarn').innerHTML = '<span class="warning">Gagal membuka PDF. Pastikan file valid.</span>';
+    console.error(err);
+  }
+});
 
-      errorMsg.textContent = '';
-      output.style.display = 'none';
-
-      if (!originalWidth || !originalHeight || !newSize || originalWidth <= 0 || originalHeight <= 0 || newSize <= 0) {
-        errorMsg.textContent = "Semua nilai harus diisi dan lebih dari 0.";
-        return;
-      }
-
-      let newWidth, newHeight;
-
-      if (reference === 'width') {
-        const scale = newSize / originalWidth;
-        newWidth = newSize;
-        newHeight = originalHeight * scale;
-      } else {
-        const scale = newSize / originalHeight;
-        newHeight = newSize;
-        newWidth = originalWidth * scale;
-      }
-
-      output.innerHTML = `
-        <strong>Ukuran proporsional:</strong><br>
-        • Lebar: <strong>${newWidth.toFixed(2)} cm</strong><br>
-        • Tinggi: <strong>${newHeight.toFixed(2)} cm</strong>
-      `;
-      output.style.display = 'block';
+function buildAll(resetCache){
+  const mode = elMode.value;
+  const sheets = [];
+  if (mode === 'print') {
+    const sheetCount = totalForBooklet / 4;
+    for (let i = 0; i < sheetCount; i++) {
+      const frontLeft  = totalForBooklet - (2*i);
+      const frontRight = 1 + (2*i);
+      const backLeft   = 2 + (2*i);
+      const backRight  = totalForBooklet - 1 - (2*i);
+      sheets.push({ side: 'FRONT', pair: [frontLeft, frontRight] });
+      sheets.push({ side: 'BACK',  pair: [backLeft,  backRight]  });
     }
-  </script>
+  } else {
+    for (let p = 1; p <= totalForBooklet; p += 2) {
+      sheets.push({ side: 'SPREAD', pair: [p, p+1] });
+    }
+  }
 
+  if (resetCache) window._renderCache = new Map();
+  elSheets.innerHTML = '';
+  let sheetNo = 0;
+  for (const sh of sheets) {
+    sheetNo++;
+    const wrap = document.createElement('section');
+    wrap.className = 'sheet';
+    const h3 = document.createElement('h3');
+    h3.innerHTML = `<span>${elMode.value==='print' ? \`Lembar \${Math.ceil(sheetNo/2)} – \${sh.side}\` : sh.side}</span>`+
+                   `<span class="hint">Hal: ${fmtPage(sh.pair[0])} &nbsp;|&nbsp; ${fmtPage(sh.pair[1])}</span>`;
+    wrap.appendChild(h3);
+
+    const spread = document.createElement('div');
+    spread.className = 'spread';
+
+    const leftWrap = document.createElement('div'); leftWrap.className = 'pageWrap';
+    const rightWrap = document.createElement('div'); rightWrap.className = 'pageWrap';
+
+    const b1 = document.createElement('div'); b1.className='badge'; b1.textContent = 'KIRI';
+    const b2 = document.createElement('div'); b2.className='badge'; b2.textContent = 'KANAN';
+
+    const pn1 = document.createElement('div'); pn1.className='pagenum'; pn1.textContent = labelFor(sh.pair[0]);
+    const pn2 = document.createElement('div'); pn2.className='pagenum'; pn2.textContent = labelFor(sh.pair[1]);
+
+    Promise.all([
+      getPageCanvas(sh.pair[0]),
+      getPageCanvas(sh.pair[1])
+    ]).then(([c1, c2]) => {
+      leftWrap.appendChild(c1); rightWrap.appendChild(c2);
+      leftWrap.appendChild(pn1); rightWrap.appendChild(pn2);
+      leftWrap.appendChild(b1);  rightWrap.appendChild(b2);
+    }).catch(err => console.error(err));
+
+    spread.appendChild(leftWrap);
+    spread.appendChild(rightWrap);
+    wrap.appendChild(spread);
+    elSheets.appendChild(wrap);
+  }
+}
+
+function fmtPage(n){
+  if (n<1 || n>srcPageCount) return `BLANK (${n})`;
+  return `p.${n}`;
+}
+function labelFor(n){
+  const mode = elLabels.value;
+  if (mode==='none') return '';
+  if (mode==='all') return fmtPage(n);
+  return (n<1 || n>srcPageCount) ? '' : `p.${n}`;
+}
+
+async function getPageCanvas(pageNum){
+  const h = parseInt(elHeight.value,10) || 380;
+  const zoom = parseInt(elZoom.value,10) / 100;
+  const key = `${pageNum}@${h}@${zoom}`;
+
+  if (!window._renderCache) window._renderCache = new Map();
+  const cache = window._renderCache;
+  if (cache.has(key)) return cloneCanvas(cache.get(key));
+
+  if (pageNum<1 || pageNum>srcPageCount) {
+    const blank = document.createElement('canvas');
+    blank.width = Math.round(h * 0.707 * zoom);
+    blank.height = Math.round(h * zoom);
+    const ctx = blank.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,blank.width, blank.height);
+    ctx.strokeStyle = '#e5e7eb'; ctx.strokeRect(0.5,0.5,blank.width-1, blank.height-1);
+    cache.set(key, blank); return cloneCanvas(blank);
+  }
+
+  const page = await pdfDoc.getPage(pageNum);
+  const viewport1 = page.getViewport({ scale: 1 });
+  const scale = (h * zoom) / viewport1.height;
+  const viewport = page.getViewport({ scale });
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  cache.set(key, canvas);
+  return cloneCanvas(canvas);
+}
+
+function cloneCanvas(src){
+  const c = document.createElement('canvas');
+  c.width = src.width; c.height = src.height;
+  c.getContext('2d').drawImage(src, 0, 0);
+  return c;
+}
+</script>
 </body>
 </html>
