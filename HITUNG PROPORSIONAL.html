@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kalkulator Ukuran Proporsional</title>
+  <style>
+    :root {
+      --primary-color: #4e9af1;
+      --bg-color: #f9f9f9;
+      --text-color: #333;
+      --card-color: #ffffff;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: var(--card-color);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary-color);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #3d85d8;
+    }
+
+    .result {
+      margin-top: 25px;
+      padding: 20px;
+      background-color: #f0f4ff;
+      border-left: 5px solid var(--primary-color);
+      border-radius: 8px;
+      font-size: 1.1rem;
+      display: none;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+        border-radius: 0;
+        height: 100vh;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Kalkulator Ukuran Proporsional</h2>
+
+    <div class="form-group">
+      <label for="originalWidth">Lebar Asli (cm):</label>
+      <input type="number" id="originalWidth" step="0.01" placeholder="contoh: 10">
+    </div>
+
+    <div class="form-group">
+      <label for="originalHeight">Tinggi Asli (cm):</label>
+      <input type="number" id="originalHeight" step="0.01" placeholder="contoh: 15">
+    </div>
+
+    <div class="form-group">
+      <label for="reference">Gunakan sebagai patokan:</label>
+      <select id="reference">
+        <option value="width">Lebar</option>
+        <option value="height">Tinggi</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="newSize">Ukuran Patokan Baru (cm):</label>
+      <input type="number" id="newSize" step="0.01" placeholder="contoh: 5">
+    </div>
+
+    <button onclick="calculate()">Hitung Ukuran Proporsional</button>
+    <div class="error" id="errorMsg"></div>
+
+    <div class="result" id="output"></div>
+  </div>
+
+  <script>
+    function calculate() {
+      const originalWidth = parseFloat(document.getElementById('originalWidth').value);
+      const originalHeight = parseFloat(document.getElementById('originalHeight').value);
+      const reference = document.getElementById('reference').value;
+      const newSize = parseFloat(document.getElementById('newSize').value);
+      const output = document.getElementById('output');
+      const errorMsg = document.getElementById('errorMsg');
+
+      errorMsg.textContent = '';
+      output.style.display = 'none';
+
+      if (!originalWidth || !originalHeight || !newSize || originalWidth <= 0 || originalHeight <= 0 || newSize <= 0) {
+        errorMsg.textContent = "Semua nilai harus diisi dan lebih dari 0.";
+        return;
+      }
+
+      let newWidth, newHeight;
+
+      if (reference === 'width') {
+        const scale = newSize / originalWidth;
+        newWidth = newSize;
+        newHeight = originalHeight * scale;
+      } else {
+        const scale = newSize / originalHeight;
+        newHeight = newSize;
+        newWidth = originalWidth * scale;
+      }
+
+      output.innerHTML = `
+        <strong>Ukuran proporsional:</strong><br>
+        • Lebar: <strong>${newWidth.toFixed(2)} cm</strong><br>
+        • Tinggi: <strong>${newHeight.toFixed(2)} cm</strong>
+      `;
+      output.style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
