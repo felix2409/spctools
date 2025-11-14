@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>📘 Hitung Ukuran Tebal Buku</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      padding: 2rem;
+      margin: 0;
+    }
+    .container {
+      background: #ffffff;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #007bff;
+      font-size: 1.4rem;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 1rem;
+      display: block;
+      font-size: 0.95rem;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    }
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.7rem;
+      font-size: 0.9rem;
+    }
+    .inline input[type="checkbox"] {
+      width: auto;
+      margin-top: 0;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      margin-top: 2rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 2rem;
+      background: #f8fafc;
+      padding: 1rem;
+      border-left: 4px solid #007bff;
+      border-radius: 0.5rem;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre-line;
+      animation: fadeIn 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📘 Hitung Ukuran Spiral & Punggung Buku</h1>
+
+    <label for="lembar">Jumlah Lembar Isi:</label>
+    <input type="number" id="lembar" placeholder="Contoh: 100" />
+
+    <label for="jenisKertas">Jenis Kertas Isi:</label>
+    <select id="jenisKertas">
+      <option value="HVS 70/80" selected>HVS 70/80</option>
+      <option value="HVS 100">HVS 100</option>
+      <option value="AP 120">AP 120</option>
+      <option value="AP 150">AP 150</option>
+      <option value="AP 210">AP 210</option>
+      <option value="AP 260">AP 260</option>
+      <option value="AP 310">AP 310</option>
+      <option value="BC/Blushwhite">BC/Blushwhite</option>
+      <option value="Jasmine / Copen">Jasmine / Copen</option>
+      <option value="Concord">Concord</option>
+    </select>
+
+    <div class="inline">
+      <input type="checkbox" id="hardSpiral" />
+      <label for="hardSpiral" style="margin-top:0;font-weight:normal;">
+        Hard Spiral/Kalender
+      </label>
+    </div>
+
+    <button onclick="hitungKetebalan()">🔍 Hitung Ukuran</button>
+
+    <div class="result" id="hasil" style="display:none;"></div>
+  </div>
+
+  <script>
+    const dataKertas = {
+      "HVS 70/80": 0.095,
+      "HVS 100": 0.124,
+      "AP 120": 0.11,
+      "AP 150": 0.13,
+      "AP 210": 0.22,
+      "AP 260": 0.29,
+      "AP 310": 0.36,
+      "BC/Blushwhite": 0.31,
+      "Jasmine / Copen": 0.2,
+      "Concord": 0.37
+    };
+
+    const spiralList = [
+      { ukuran: "5/16", max: 5 },
+      { ukuran: "3/8",  max: 6.5 },
+      { ukuran: "7/16", max: 8 },
+      { ukuran: "1/2",  max: 9.5 },
+      { ukuran: "9/16", max: 12 },
+      { ukuran: "5/8",  max: 13 },
+      { ukuran: "3/4",  max: 15 },
+      { ukuran: "1",    max: 20 },
+      { ukuran: "1 1/4",max: 26 }
+    ];
+
+    function roundHalfUp(x) {
+      const f = Math.floor(x);
+      return (x - f) >= 0.5 ? f + 1 : f;
+    }
+
+    function hitungKetebalan() {
+      const lembar = parseInt(document.getElementById("lembar").value);
+      const jenis = document.getElementById("jenisKertas").value;
+      const isHardSpiral = document.getElementById("hardSpiral").checked;
+
+      if (!lembar || lembar <= 0) {
+        alert("Jumlah lembar harus diisi.");
+        return;
+      }
+
+      const T_isi = lembar * dataKertas[jenis];
+      const T_spiral = isHardSpiral ? (T_isi + 6) : T_isi;
+
+      // Softcover
+      const P_soft_raw = T_isi + 1;
+      const P_soft = roundHalfUp(P_soft_raw);
+
+      // Hardcover
+      const P_hard = P_soft + 2;
+
+      // Spiral
+      const spiral = spiralList.find(s => T_spiral <= s.max);
+      const ukuranSpiral = spiral ? spiral.ukuran : "-";
+
+      // Lakban (opsi A)
+      const lebarLakban = T_isi + 19;
+      let tipeLakban = "Lakban XXL";
+      if (lebarLakban <= 23) tipeLakban = "Lakban S";
+      else if (lebarLakban <= 28) tipeLakban = "Lakban M";
+      else if (lebarLakban <= 36) tipeLakban = "Lakban L";
+      else if (lebarLakban <= 66) tipeLakban = "Lakban XL";
+
+      document.getElementById("hasil").style.display = "block";
+      document.getElementById("hasil").textContent =
+        "Ukuran Spiral : " + ukuranSpiral + "\n" +
+        "Ukuran Punggung Softcover : " + P_soft + " mm\n" +
+        "Ukuran Punggung Hardcover : " + P_hard + " mm\n" +
+        "Ukuran Lakban : " + tipeLakban;
+    }
+  </script>
+</body>
+</html>
