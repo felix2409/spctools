@@ -157,6 +157,11 @@
         <a href="#/spiral" data-file="HITUNG UKURAN SPIRAL.html">
           <i class="fa-solid fa-ruler-combined"></i> Ukuran Spiral
         </a>
+
+        <!-- ✅ TAB BARU: MACRO COREL -->
+        <a href="#/macrocorel" data-file="MACRO COREL.html">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Macro Corel
+        </a>
       </nav>
 
       <div class="footer">© 2025 Spectrum Digital Printing</div>
@@ -194,7 +199,7 @@
     }
 
     function reloadTool() {
-      if (frame.src) frame.contentWindow.location.reload();
+      if (frame && frame.contentWindow) frame.contentWindow.location.reload();
     }
 
     function openFromHash() {
