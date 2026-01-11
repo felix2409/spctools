@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Macro Corel • SPC Tools</title>
 
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
@@ -35,7 +34,6 @@
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
       font-weight:900;transition:.15s;
     }
-    /* MAIN highlight button */
     .btn.big{
       background: linear-gradient(90deg,#ffd54a,#ffef9a);
       color:#0b1220;
@@ -48,7 +46,6 @@
     .btn.big:hover{transform: translateY(-1px); filter: brightness(1.02);}
     .btn.big .sub{display:block;font-size:.78rem;font-weight:800;opacity:.85;line-height:1.1}
 
-    /* Tabs */
     .tabs{
       margin-top:14px;
       background:#fff;
@@ -74,7 +71,6 @@
     .tabcontent{padding:14px}
     .hidden{display:none !important;}
 
-    /* Slider (big) */
     .slider{
       position:relative;
       width:100%;
@@ -98,12 +94,9 @@
       display:block;
       background:#0b1220;
     }
-    @media (max-width: 900px){
-      .slide img{height: 380px;}
-    }
-    @media (max-width: 600px){
-      .slide img{height: 300px;}
-    }
+    @media (max-width: 900px){ .slide img{height: 380px;} }
+    @media (max-width: 600px){ .slide img{height: 300px;} }
+
     .sbtn{
       position:absolute;top:50%;transform:translateY(-50%);
       width:44px;height:44px;border-radius:999px;border:none;
@@ -127,7 +120,6 @@
     }
     .dot.active{background:#fff;border-color:#fff}
 
-    /* Caption box */
     .cap{
       margin-top:12px;
       background:#fff;
@@ -138,16 +130,14 @@
     .cap h3{margin:0 0 6px;color:#1e3a5f;font-size:1.05rem;font-weight:950}
     .cap p{margin:0;color:#334155;line-height:1.55}
 
-    /* Macro tab layout */
     .macroLayout{
       display:grid;
       grid-template-columns: 320px 1fr;
       gap:14px;
       align-items:start;
     }
-    @media (max-width: 980px){
-      .macroLayout{grid-template-columns: 1fr;}
-    }
+    @media (max-width: 980px){ .macroLayout{grid-template-columns: 1fr;} }
+
     .macroNav{
       background:#fff;border:1px solid #e5e7eb;border-radius:16px;
       box-shadow:0 10px 20px rgba(0,0,0,.05);
@@ -213,13 +203,11 @@
       <div class="hero-top">
         <div>
           <h1><i class="fa-solid fa-wand-magic-sparkles"></i> Macro Corel (GMS) — Spectrum</h1>
-          <p>
-            Download file macro, lihat tutor instalasi (gambar besar + caption), dan panduan tiap macro (tiap macro punya slider gambar + caption per step).
-          </p>
+          <p>Download file macro, lihat tutor instalasi (gambar besar + caption), dan panduan tiap macro (slider gambar + caption per step).</p>
         </div>
 
         <div class="hero-actions">
-          <!-- Letakkan SPC.gms satu folder dengan file HTML ini -->
+          <!-- SPC.gms belum diupload? tetap aman, nanti setelah upload baru berfungsi -->
           <a class="btn big" href="SPC.gms" download="SPC-Macro-Corel.gms">
             <i class="fa-solid fa-file-arrow-down" style="font-size:1.1rem"></i>
             <span>
@@ -304,11 +292,9 @@
     // Helpers
     // ==============================
     function encPath(pathWithSpaces){
-      // GitHub pages aman kalau spasi jadi %20
       return pathWithSpaces.replace(/ /g, "%20");
     }
     function buildImagePath(folder, baseName, index1, ext){
-      // contoh: IMG/INSTALL 1.jpg -> IMG/INSTALL%201.jpg
       return encPath(`${folder}${baseName}${index1}.${ext}`);
     }
 
@@ -387,7 +373,6 @@
       render();
 
       return {
-        go,
         setSlides(newSlides){
           slides.length = 0;
           newSlides.forEach(x => slides.push(x));
@@ -412,11 +397,10 @@
     });
 
     // ==============================
-    // CONFIG / DATA
+    // CONFIG / DATA (sesuai nama file kamu + semuanya .jpg)
     // ==============================
     const IMG_FOLDER = "IMG/";
 
-    // Install steps (gambar: IMG/INSTALL 1.jpg dst)
     const INSTALL = {
       ext: "jpg",
       base: "INSTALL ",
@@ -433,19 +417,19 @@
       caption: s.caption
     }));
 
-    // Macros (tiap macro punya steps[] dengan title+caption, dan gambar: "NAMA 1.png" dst)
+    // ✅ Macro: semua .jpg + base persis seperti nama file di folder IMG kamu
     const MACROS = [
       {
         key: "autofill",
         name: "AUTOFILL",
         tag: "Layout",
-        ext: "png",
+        ext: "jpg",
         base: "AUTOFILL ",
         desc: "Menduplikat objek sesuai Area Canvas Corel.",
         steps: [
           { title: "Pilih objek", caption: "Pilih objek yang mau di duplikat." },
           { title: "Jalankan AutoFill", caption: "Klik AutoFill di Macro kanan lalu klik tombol Start hijau di kanan bawah." },
-          { title: "Atur jarak (mm)", caption: "Pilih jarak per objek (mm) lalu klik OK. Objek terduplikat otomatis dengan maksimal." }
+          { title: "Atur jarak (mm)", caption: "Pilih mau diberi jarak berapa per objek (mm) lalu klik OK." }
         ],
         how: [
           "Pilih objek yang mau di duplikat.",
@@ -458,153 +442,149 @@
         key: "autofill-bulat",
         name: "AUTOFILL BULAT",
         tag: "Zig Zag",
-        ext: "png",
+        ext: "jpg",
         base: "AUTOFILL BULAT ",
         desc: "Menduplikat objek bulat di Area Cutting dengan metode Zig Zag.",
         steps: [
-          { title: "Siapkan Area Cutting", caption: "Pilih 2 objek kotak sebagai Area Cutting." },
-          { title: "Layout zig-zag", caption: "Pilih objek bulat + Area Cutting, lalu klik Start hijau. Objek bulat terlayout zig-zag otomatis." }
+          { title: "Pilih Area Cutting", caption: "Pilih 2 objek kotak sebagai Area Cutting-nya." },
+          { title: "Pilih objek bulat", caption: "Pilih bulat sebagai objek yang mau di layout zig-zag." }
         ],
         how: [
-          "Pilih 2 objek kotak sebagai Area Cutting.",
-          "Pilih objek bulat sebagai objek yang mau di-layout.",
-          "Klik Start hijau.",
-          "Objek bulat akan otomatis terlayout zig-zag di Area Cutting."
+          "Pilih 2 objek kotak sebagai Area Cuttingnya, dan Bulat sebagai objek yang mau di layout zig zag.",
+          "Setelah itu klik start hijau.",
+          "Objek bulat akan otomatis terlayout secara zig zag di Area Cuttingnya."
         ]
       },
       {
-        key: "autofill-cutting",
+        key: "autofillcutting",
         name: "AUTOFILL CUTTING",
         tag: "Area Layout",
-        ext: "png",
-        base: "AUTOFILL CUTTING ",
+        ext: "jpg",
+        base: "AUTOFILLCUTTING ",
         desc: "Menduplikat objek sesuai Area Layout yang dibuat.",
         steps: [
-          { title: "Pilih objek & area", caption: "Pilih 2 objek: (1) objek yang mau diduplikat, (2) Area Layout." },
-          { title: "Atur jarak & jalankan", caption: "Klik Start hijau → isi jarak (mm) → OK. Objek terduplikat maksimal di Area Layout." }
+          { title: "Pilih objek & area", caption: "Pilih 2 objek: 1 objek yang mau di duplikat dan 1 lagi Area Layoutnya." },
+          { title: "Atur jarak (mm)", caption: "Klik start hijau → isi jarak (mm) → OK." },
+          { title: "Selesai", caption: "Objek akan terduplikat otomatis di Area Layout dengan maksimal." }
         ],
         how: [
-          "Pilih 2 objek: objek yang mau di duplikat dan Area Layout-nya.",
-          "Klik Start hijau.",
-          "Masukkan jarak (mm) lalu OK.",
-          "Objek akan terduplikat maksimal di Area Layout."
+          "Pilih 2 objek (objek duplikat + area layout).",
+          "Klik start hijau.",
+          "Pilih jarak (mm) lalu OK.",
+          "Objek terduplikat maksimal di Area Layout."
+        ]
+      },
+      {
+        key: "cropmark",
+        name: "CROP MARK",
+        tag: "Crop",
+        ext: "jpg",
+        base: "CROP MARK ",
+        desc: "Membuat garis potong crop luar.",
+        steps: [
+          { title: "Buat kotak acuan", caption: "Buat kotak ukuran jadi (misal A5 148×210) sebagai acuan." },
+          { title: "Pilih kotak", caption: "Pilih kotak A5-nya lalu klik start hijau." }
+        ],
+        how: [
+          "Pilih objek acuan ukuran jadi (contoh kotak A5 148×210).",
+          "Klik start hijau.",
+          "Crop Mark akan muncul sesuai ukuran yang dipilih."
         ]
       },
       {
         key: "garis-cutting",
         name: "GARIS CUTTING",
         tag: "1 Layout",
-        ext: "png",
+        ext: "jpg",
         base: "GARIS CUTTING ",
-        desc: "Membuat garis cutting dengan 1 layout yang sama (tidak mix portrait/landscape).",
+        desc: "Membuat garis cutting dengan 1 layout yang sama.",
         steps: [
           { title: "Pilih grup (1 layout)", caption: "Pilih objek yang sudah di-grup (1 layout, tidak mix portrait/landscape)." },
-          { title: "Buat garis cutting", caption: "Klik Start hijau. Garis cutting otomatis dibuat dengan lebihan sedikit di area luar." }
+          { title: "Klik start hijau", caption: "Garis cutting otomatis dibuat dengan lebihan sedikit di area luar." }
         ],
         how: [
           "Pilih objek yang sudah di-grup.",
-          "Pastikan 1 layout (tidak mix portrait dan landscape).",
-          "Klik Start hijau.",
-          "Garis cutting otomatis dibuat dengan lebihan sedikit di area luar."
+          "Pastikan 1 layout tidak mix portrait/landscape.",
+          "Klik start hijau → garis cutting dibuat otomatis."
         ]
       },
       {
-        key: "garis-cutting-kombinasi",
+        key: "garis-kombinasi",
         name: "GARIS CUTTING KOMBINASI",
         tag: "Mix",
-        ext: "png",
+        ext: "jpg",
         base: "GARIS CUTTING KOMBINASI ",
         desc: "Membuat garis cutting dengan layout mix portrait dan landscape.",
         steps: [
-          { title: "Pilih grup (layout mix)", caption: "Pilih objek yang sudah di-grup dengan layout mix portrait dan landscape." },
-          { title: "Buat garis cutting", caption: "Klik Start hijau. Garis cutting otomatis dibuat dengan lebihan sedikit di area luar." }
+          { title: "Pilih grup (mix)", caption: "Pilih objek yang sudah di-grup dengan layout mix portrait & landscape." },
+          { title: "Klik start hijau", caption: "Garis cutting otomatis dibuat dengan lebihan sedikit di area luar." }
         ],
         how: [
-          "Pilih objek yang sudah di-grup dengan layout mix portrait dan landscape.",
-          "Klik Start hijau.",
-          "Garis cutting otomatis dibuat dengan lebihan sedikit di area luar."
-        ]
-      },
-      {
-        key: "crop-mark",
-        name: "CROP MARK",
-        tag: "Crop",
-        ext: "png",
-        base: "CROP MARK ",
-        desc: "Membuat garis potong crop luar.",
-        steps: [
-          { title: "Buat kotak ukuran jadi", caption: "Buat kotak acuan ukuran jadi (misal A5 148×210) sebagai patokan." },
-          { title: "Pilih kotak & jalankan", caption: "Pilih kotak acuan → klik Start hijau → crop mark muncul sesuai ukuran yang dipilih." }
-        ],
-        how: [
-          "Buat kotak ukuran jadi (misal A5 asli 148×210).",
-          "Pilih kotak acuan tersebut.",
-          "Klik Start hijau.",
-          "Crop Mark akan muncul sesuai ukuran yang dipilih."
+          "Pilih objek yang sudah di-grup dengan layout mix.",
+          "Klik start hijau → garis cutting dibuat otomatis."
         ]
       },
       {
         key: "siku-sudut",
         name: "SIKU SUDUT",
         tag: "Siku",
-        ext: "png",
+        ext: "jpg",
         base: "SIKU SUDUT ",
         desc: "Membuat garis potong dengan siku di sudut objek.",
         steps: [
-          { title: "Buat kotak ukuran jadi", caption: "Buat kotak acuan ukuran jadi (misal A5 148×210) sebagai patokan." },
-          { title: "Pilih kotak & jalankan", caption: "Pilih kotak acuan → klik Start hijau → siku sudut muncul sesuai ukuran yang dipilih." }
+          { title: "Buat kotak acuan", caption: "Buat kotak ukuran jadi (misal A5 148×210) sebagai acuan." },
+          { title: "Klik start hijau", caption: "Sudut siku akan muncul dengan ukuran sesuai kotak yang dipilih." }
         ],
         how: [
-          "Buat kotak ukuran jadi (misal A5 asli 148×210).",
-          "Pilih kotak acuan tersebut.",
-          "Klik Start hijau.",
-          "Siku sudut akan muncul sesuai ukuran yang dipilih."
+          "Pilih objek acuan ukuran jadi.",
+          "Klik start hijau.",
+          "Sudut siku muncul sesuai ukuran yang dipilih."
         ]
       },
       {
         key: "titik-hard",
         name: "TITIK HARD",
         tag: "Hardcover",
-        ext: "png",
+        ext: "jpg",
         base: "TITIK HARD ",
         desc: "Membuat titik layout Hardcover (default jarak 8mm) dan Cover Tebal.",
         steps: [
-          { title: "Pilih punggung hardcover", caption: "Pilih punggung Hardcover-nya, lalu klik Start hijau." },
-          { title: "Pilih NO (Hardcover)", caption: "Pilih NO untuk layout Hardcover." },
-          { title: "Titik untuk hardcover", caption: "Titik otomatis muncul di semua sudut Hardcover." },
-          { title: "Pilih YES (Cover tebal)", caption: "Pilih YES untuk layout Cover Tebal." },
-          { title: "Titik untuk cover tebal", caption: "Titik otomatis muncul di semua sudut Cover Tebal." }
+          { title: "Pilih punggung hardcover", caption: "Pilih punggung Hardcover-nya, lalu klik start hijau." },
+          { title: "Pilih NO", caption: "Pilih NO untuk layout Hardcover → titik muncul di semua sudut Hardcover." },
+          { title: "Pilih YES", caption: "Pilih YES untuk layout Cover Tebal." },
+          { title: "Hasil Cover Tebal", caption: "Titik muncul di semua sudut Cover Tebal." },
+          { title: "Selesai", caption: "Titik siap dipakai untuk proses layout." }
         ],
         how: [
-          "Pilih punggung Hardcover-nya, lalu klik Start hijau.",
-          "Pilih NO untuk layout Hardcover → titik muncul di semua sudut Hardcover.",
-          "Pilih YES untuk layout Cover Tebal → titik muncul di semua sudut Cover Tebal."
+          "Pilih punggung Hardcover → start hijau.",
+          "Pilih NO untuk layout Hardcover.",
+          "Pilih YES untuk layout Cover Tebal."
         ]
       },
       {
-        key: "teks-plot-cutting",
+        key: "teks-plot",
         name: "TEKS PLOT CUTTING",
         tag: "Teks",
-        ext: "png",
+        ext: "jpg",
         base: "TEKS PLOT CUTTING ",
-        desc: "Otomatis membuat teks plot cutting di semua layer / page.",
+        desc: "Otomatis membuat teks di semua layer / page.",
         steps: [
-          { title: "Jalankan macro", caption: "Klik Start hijau." },
-          { title: "Isi nomor antrian", caption: "Masukkan nomor antrian → OK." },
-          { title: "Pilih NO (teks sama)", caption: "Pilih NO jika plotnya sama semua tiap halaman." },
-          { title: "Hasil NO", caption: "Semua page otomatis membuat Teks Plot Cutting sama semua." },
-          { title: "Pilih YES (beda halaman)", caption: "Pilih YES jika plot beda semua → teks diberi suffix huruf berbeda sesuai halaman." }
+          { title: "Klik start hijau", caption: "Jalankan macro TEKS PLOT CUTTING." },
+          { title: "Masukkan antrian", caption: "Masukkan antriannya lalu klik OK." },
+          { title: "Pilih NO", caption: "Pilih NO jika plotnya sama semua tiap halaman." },
+          { title: "Pilih YES", caption: "Pilih YES jika plotnya beda semua." },
+          { title: "Selesai", caption: "Teks plot cutting otomatis dibuat sesuai pilihan." }
         ],
         how: [
-          "Klik Start hijau, masukkan antrian, lalu OK.",
-          "Pilih NO jika plotnya sama semua tiap halaman → semua page teksnya sama.",
-          "Pilih YES jika plot beda semua → semua page teks plot cutting pakai suffix huruf berbeda."
+          "Klik start hijau → masukkan antrian → OK.",
+          "Pilih NO jika plot sama semua tiap halaman.",
+          "Pilih YES jika plot beda semua (suffix huruf otomatis)."
         ]
       }
     ];
 
     // ==============================
-    // INIT: Install slider
+    // INIT sliders
     // ==============================
     const installSlider = createSlider({
       sliderEl: document.getElementById("installSlider"),
@@ -617,9 +597,7 @@
       slides: installSlides
     });
 
-    // ==============================
-    // INIT: Macro UI + slider
-    // ==============================
+    // Macro UI refs
     const macroListEl = document.getElementById("macroList");
     const macroTitleEl = document.getElementById("macroTitle");
     const macroTagEl   = document.getElementById("macroTag");
@@ -636,7 +614,7 @@
       nextBtnEl: document.querySelector("#macroSlider .sbtn.next"),
       capTitleEl: macroCapTitleEl,
       capTextEl: macroCapTextEl,
-      slides: [{ img: buildImagePath(IMG_FOLDER, INSTALL.base, 1, INSTALL.ext), title:"", caption:"" }]
+      slides: [{ img: buildImagePath(IMG_FOLDER, "INSTALL ", 1, "jpg"), title:"", caption:"" }]
     });
 
     function setActiveMacro(key){
@@ -666,7 +644,6 @@
       macroSlider.setSlides(slides);
     }
 
-    // Sidebar macro list: hanya nama macro (tanpa "(x gambar)")
     MACROS.forEach(m => {
       const item = document.createElement("div");
       item.className = "macroItem";
@@ -676,7 +653,6 @@
       macroListEl.appendChild(item);
     });
 
-    // default select first macro
     setActiveMacro(MACROS[0].key);
   </script>
 </body>
