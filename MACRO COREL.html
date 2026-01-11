@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Macro Corel • SPC Tools</title>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Segoe UI","Inter",system-ui,-apple-system,Arial,sans-serif;
+      background: linear-gradient(135deg, #f6f9ff, #ffffff);
+      color:#0f172a;
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px 18px 40px;}
+    .hero{
+      background: linear-gradient(180deg,#1e3a5f,#122946);
+      color:#fff;border-radius:18px;padding:18px 18px 16px;
+      box-shadow:0 14px 28px rgba(0,0,0,.12);
+      overflow:hidden;
+    }
+    .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+    .hero h1{
+      margin:0 0 6px;font-size:1.25rem;letter-spacing:.2px;
+      display:flex;align-items:center;gap:10px;
+    }
+    .hero p{margin:0;opacity:.9;line-height:1.45;font-size:.95rem;max-width:820px;}
+    .hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .btn{
+      border:none;cursor:pointer;text-decoration:none;user-select:none;
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      font-weight:900;transition:.15s;
+    }
+    /* MAIN highlight button */
+    .btn.big{
+      background: linear-gradient(90deg,#ffd54a,#ffef9a);
+      color:#0b1220;
+      padding:14px 18px;
+      border-radius:16px;
+      box-shadow: 0 16px 34px rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.20);
+      min-width: 260px;
+    }
+    .btn.big:hover{transform: translateY(-1px); filter: brightness(1.02);}
+    .btn.big .sub{display:block;font-size:.78rem;font-weight:800;opacity:.85;line-height:1.1}
+
+    /* Tabs */
+    .tabs{
+      margin-top:14px;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      box-shadow:0 10px 20px rgba(0,0,0,.05);
+      overflow:hidden;
+    }
+    .tabbar{
+      display:flex;gap:8px;flex-wrap:wrap;
+      padding:10px;
+      border-bottom:1px solid #eef2f7;
+      background: linear-gradient(180deg,#ffffff,#fbfdff);
+    }
+    .tabbtn{
+      padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;
+      background:#f8fafc;color:#0f172a;font-weight:900;
+      display:inline-flex;align-items:center;gap:10px;
+      cursor:pointer;transition:.15s;
+    }
+    .tabbtn:hover{background:#eef6ff}
+    .tabbtn.active{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
+    .tabcontent{padding:14px}
+    .hidden{display:none !important;}
+
+    /* Slider (big) */
+    .slider{
+      position:relative;
+      width:100%;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid #e5e7eb;
+      background:#0b1220;
+      box-shadow:0 14px 26px rgba(0,0,0,.10);
+    }
+    .track{
+      display:flex;
+      transition:transform .25s ease;
+      will-change:transform;
+      touch-action: pan-y;
+    }
+    .slide{min-width:100%;display:flex;align-items:center;justify-content:center;background:#0b1220;}
+    .slide img{
+      width:100%;
+      height: 520px;
+      object-fit: contain;
+      display:block;
+      background:#0b1220;
+    }
+    @media (max-width: 900px){
+      .slide img{height: 380px;}
+    }
+    @media (max-width: 600px){
+      .slide img{height: 300px;}
+    }
+    .sbtn{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:44px;height:44px;border-radius:999px;border:none;
+      background:rgba(255,255,255,.14);color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;backdrop-filter: blur(8px);
+      transition:.15s;user-select:none;
+    }
+    .sbtn:hover{background:rgba(255,255,255,.22)}
+    .sbtn.prev{left:12px}
+    .sbtn.next{right:12px}
+    .dots{
+      position:absolute;left:0;right:0;bottom:12px;
+      display:flex;justify-content:center;gap:8px;align-items:center;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.65);
+      background:rgba(255,255,255,.16);
+      cursor:pointer;transition:.15s;user-select:none;
+    }
+    .dot.active{background:#fff;border-color:#fff}
+
+    /* Caption box */
+    .cap{
+      margin-top:12px;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:12px 14px;
+    }
+    .cap h3{margin:0 0 6px;color:#1e3a5f;font-size:1.05rem;font-weight:950}
+    .cap p{margin:0;color:#334155;line-height:1.55}
+
+    /* Macro tab layout */
+    .macroLayout{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .macroLayout{grid-template-columns: 1fr;}
+    }
+    .macroNav{
+      background:#fff;border:1px solid #e5e7eb;border-radius:16px;
+      box-shadow:0 10px 20px rgba(0,0,0,.05);
+      overflow:hidden;
+    }
+    .macroNavTop{
+      padding:12px 14px;border-bottom:1px solid #eef2f7;
+      font-weight:950;color:#1e3a5f;display:flex;align-items:center;gap:10px;
+      background: linear-gradient(180deg,#ffffff,#fbfdff);
+    }
+    .macroList{padding:10px;display:flex;flex-direction:column;gap:8px}
+    .macroItem{
+      border:1px solid #e5e7eb;background:#f8fafc;color:#0f172a;
+      padding:10px 12px;border-radius:14px;
+      cursor:pointer;font-weight:950;
+      transition:.15s;
+    }
+    .macroItem:hover{background:#eef6ff}
+    .macroItem.active{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
+
+    .macroPanel{
+      background:#fff;border:1px solid #e5e7eb;border-radius:16px;
+      box-shadow:0 10px 20px rgba(0,0,0,.05);
+      overflow:hidden;
+    }
+    .macroPanelTop{
+      padding:12px 14px;border-bottom:1px solid #eef2f7;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      background: linear-gradient(180deg,#ffffff,#fbfdff);
+    }
+    .macroTitle{
+      display:flex;align-items:center;gap:10px;
+      font-weight:950;color:#1e3a5f;font-size:1.05rem;margin:0;
+    }
+    .pill{
+      font-size:.78rem;font-weight:900;padding:4px 10px;border-radius:999px;
+      background:#eaf1ff;border:1px solid #cfe0ff;color:#1e3a5f;
+      white-space:nowrap;
+    }
+    .macroBody{padding:14px}
+    .macroDesc{
+      margin:0 0 12px;color:#334155;line-height:1.55;
+      font-size:.98rem;
+    }
+    .steps{
+      margin-top:10px;
+      background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;
+      padding:12px 14px;
+    }
+    .steps b{color:#1e3a5f}
+    .steps ul{margin:8px 0 0;padding-left:18px;color:#334155;line-height:1.55}
+    .steps li{margin:6px 0}
+
+    .footer{
+      text-align:center;margin-top:14px;color:#64748b;font-size:.85rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <h1><i class="fa-solid fa-wand-magic-sparkles"></i> Macro Corel (GMS) — Spectrum</h1>
+          <p>
+            Download file macro, lihat tutor instalasi (gambar besar + caption), dan panduan tiap macro (tiap macro punya slider gambar + caption per step).
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <!-- Letakkan SPC.gms satu folder dengan file HTML ini -->
+          <a class="btn big" href="SPC.gms" download="SPC-Macro-Corel.gms">
+            <i class="fa-solid fa-file-arrow-down" style="font-size:1.1rem"></i>
+            <span>
+              Download Macro (GMS)
+              <span class="sub">SPC.gms</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tabbar">
+        <button class="tabbtn active" data-tab="tab-install"><i class="fa-solid fa-screwdriver-wrench"></i> Tutor Installasi</button>
+        <button class="tabbtn" data-tab="tab-macros"><i class="fa-solid fa-list-check"></i> Panduan Macro</button>
+      </div>
+
+      <!-- TAB: INSTALL -->
+      <div class="tabcontent" id="tab-install">
+        <div class="slider" id="installSlider">
+          <div class="track" id="installTrack"></div>
+
+          <button class="sbtn prev" type="button" aria-label="Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="sbtn next" type="button" aria-label="Berikutnya"><i class="fa-solid fa-chevron-right"></i></button>
+
+          <div class="dots" id="installDots"></div>
+        </div>
+
+        <div class="cap">
+          <h3 id="installCapTitle">—</h3>
+          <p id="installCapText">—</p>
+        </div>
+      </div>
+
+      <!-- TAB: MACROS -->
+      <div class="tabcontent hidden" id="tab-macros">
+        <div class="macroLayout">
+          <div class="macroNav">
+            <div class="macroNavTop"><i class="fa-solid fa-layer-group"></i> Pilih Macro</div>
+            <div class="macroList" id="macroList"></div>
+          </div>
+
+          <div class="macroPanel">
+            <div class="macroPanelTop">
+              <h2 class="macroTitle" id="macroTitle"><i class="fa-solid fa-wand-magic-sparkles"></i> —</h2>
+              <span class="pill" id="macroTag">—</span>
+            </div>
+
+            <div class="macroBody">
+              <p class="macroDesc" id="macroDesc">—</p>
+
+              <div class="slider" id="macroSlider">
+                <div class="track" id="macroTrack"></div>
+
+                <button class="sbtn prev" type="button" aria-label="Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="sbtn next" type="button" aria-label="Berikutnya"><i class="fa-solid fa-chevron-right"></i></button>
+
+                <div class="dots" id="macroDots"></div>
+              </div>
+
+              <div class="cap">
+                <h3 id="macroCapTitle">—</h3>
+                <p id="macroCapText">—</p>
+              </div>
+
+              <div class="steps">
+                <b>Cara pakai:</b>
+                <ul id="macroHow"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">© 2025 Spectrum Digital Printing • Macro Docs</div>
+  </div>
+
+  <script>
+    // ==============================
+    // Helpers
+    // ==============================
+    function encPath(pathWithSpaces){
+      // GitHub pages aman kalau spasi jadi %20
+      return pathWithSpaces.replace(/ /g, "%20");
+    }
+    function buildImagePath(folder, baseName, index1, ext){
+      // contoh: IMG/INSTALL 1.jpg -> IMG/INSTALL%201.jpg
+      return encPath(`${folder}${baseName}${index1}.${ext}`);
+    }
+
+    // ==============================
+    // Slider factory
+    // ==============================
+    function createSlider(opts){
+      const { sliderEl, trackEl, dotsEl, prevBtnEl, nextBtnEl, capTitleEl, capTextEl, slides } = opts;
+
+      let index = 0;
+      let isDown = false, startX = 0, dx = 0;
+
+      function render(){
+        trackEl.innerHTML = "";
+        slides.forEach((s, i) => {
+          const slide = document.createElement("div");
+          slide.className = "slide";
+          slide.innerHTML = `<img src="${s.img}" alt="${(s.title || ("Slide " + (i+1))).replace(/"/g,'&quot;')}">`;
+          trackEl.appendChild(slide);
+        });
+
+        dotsEl.innerHTML = "";
+        slides.forEach((_, i) => {
+          const d = document.createElement("button");
+          d.type = "button";
+          d.className = "dot" + (i === index ? " active" : "");
+          d.addEventListener("click", () => go(i));
+          dotsEl.appendChild(d);
+        });
+
+        updateCaption();
+        updateTransform();
+      }
+
+      function updateTransform(){
+        trackEl.style.transform = `translateX(${-index * 100}%)`;
+        Array.from(dotsEl.children).forEach((d, i) => d.classList.toggle("active", i === index));
+      }
+
+      function updateCaption(){
+        const s = slides[index] || {};
+        capTitleEl.textContent = s.title || "";
+        capTextEl.textContent  = s.caption || "";
+      }
+
+      function go(i){
+        index = Math.max(0, Math.min(i, slides.length - 1));
+        updateTransform();
+        updateCaption();
+      }
+      function prev(){ go(index - 1); }
+      function next(){ go(index + 1); }
+
+      prevBtnEl.addEventListener("click", prev);
+      nextBtnEl.addEventListener("click", next);
+
+      sliderEl.addEventListener("pointerdown", (e) => {
+        isDown = true;
+        startX = e.clientX;
+        dx = 0;
+      });
+      sliderEl.addEventListener("pointermove", (e) => {
+        if(!isDown) return;
+        dx = e.clientX - startX;
+      });
+      sliderEl.addEventListener("pointerup", () => {
+        if(!isDown) return;
+        isDown = false;
+        if(Math.abs(dx) > 40){
+          if(dx < 0) next();
+          else prev();
+        }
+      });
+      sliderEl.addEventListener("pointercancel", () => { isDown = false; });
+
+      render();
+
+      return {
+        go,
+        setSlides(newSlides){
+          slides.length = 0;
+          newSlides.forEach(x => slides.push(x));
+          index = 0;
+          render();
+        }
+      };
+    }
+
+    // ==============================
+    // Tabs
+    // ==============================
+    const tabBtns = document.querySelectorAll(".tabbtn");
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const id = btn.dataset.tab;
+        document.querySelectorAll(".tabcontent").forEach(tc => tc.classList.add("hidden"));
+        document.getElementById(id).classList.remove("hidden");
+      });
+    });
+
+    // ==============================
+    // CONFIG / DATA
+    // ==============================
+    const IMG_FOLDER = "IMG/";
+
+    // Install steps (gambar: IMG/INSTALL 1.jpg dst)
+    const INSTALL = {
+      ext: "jpg",
+      base: "INSTALL ",
+      steps: [
+        { title: "Buka Macro Manager", caption: "Buka macro manager di sidebar kanan Corel Draw." },
+        { title: "Load GlobalMacros", caption: "Pilih GlobalMacros lalu pilih Load di kanan atas." },
+        { title: "Aktifkan Simple Mode", caption: "Setelah sudah selesai di Load, klik Simple Mode di sebelah tombol Load." }
+      ]
+    };
+
+    const installSlides = INSTALL.steps.map((s, i) => ({
+      img: buildImagePath(IMG_FOLDER, INSTALL.base, i+1, INSTALL.ext),
+      title: `Step ${i+1} — ${s.title}`,
+      caption: s.caption
+    }));
+
+    // Macros (tiap macro punya steps[] dengan title+caption, dan gambar: "NAMA 1.png" dst)
+    const MACROS = [
+      {
+        key: "autofill",
+        name: "AUTOFILL",
+        tag: "Layout",
+        ext: "png",
+        base: "AUTOFILL ",
+        desc: "Menduplikat objek sesuai Area Canvas Corel.",
+        steps: [
+          { title: "Pilih objek", caption: "Pilih objek yang mau di duplikat." },
+          { title: "Jalankan AutoFill", caption: "Klik AutoFill di Macro kanan lalu klik tombol Start hijau di kanan bawah." },
+          { title: "Atur jarak (mm)", caption: "Pilih jarak per objek (mm) lalu klik OK. Objek terduplikat otomatis dengan maksimal." }
+        ],
+        how: [
+          "Pilih objek yang mau di duplikat.",
+          "Klik AutoFill di Macro kanan, lalu klik tombol Start hijau (kanan bawah).",
+          "Masukkan jarak antar objek (mm) lalu OK.",
+          "Objek akan terduplikat otomatis dengan maksimal."
+        ]
+      },
+      {
+        key: "autofill-bulat",
+        name: "AUTOFILL BULAT",
+        tag: "Zig Zag",
+        ext: "png",
+        base: "AUTOFILL BULAT ",
+        desc: "Menduplikat objek bulat di Area Cutting dengan metode Zig Zag.",
+        steps: [
+          { title: "Siapkan Area Cutting", caption: "Pilih 2 objek kotak sebagai Area Cutting." },
+          { title: "Layout zig-zag", caption: "Pilih objek bulat + Area Cutting, lalu klik Start hijau. Objek bulat terlayout zig-zag otomatis." }
+        ],
+        how: [
+          "Pilih 2 objek kotak sebagai Area Cutting.",
+          "Pilih objek bulat sebagai objek yang mau di-layout.",
+          "Klik Start hijau.",
+          "Objek bulat akan otomatis terlayout zig-zag di Area Cutting."
+        ]
+      },
+      {
+        key: "autofill-cutting",
+        name: "AUTOFILL CUTTING",
+        tag: "Area Layout",
+        ext: "png",
+        base: "AUTOFILL CUTTING ",
+        desc: "Menduplikat objek sesuai Area Layout yang dibuat.",
+        steps: [
+          { title: "Pilih objek & area", caption: "Pilih 2 objek: (1) objek yang mau diduplikat, (2) Area Layout." },
+          { title: "Atur jarak & jalankan", caption: "Klik Start hijau → isi jarak (mm) → OK. Objek terduplikat maksimal di Area Layout." }
+        ],
+        how: [
+          "Pilih 2 objek: objek yang mau di duplikat dan Area Layout-nya.",
+          "Klik Start hijau.",
+          "Masukkan jarak (mm) lalu OK.",
+          "Objek akan terduplikat maksimal di Area Layout."
+        ]
+      },
+      {
+        key: "garis-cutting",
+        name: "GARIS CUTTING",
+        tag: "1 Layout",
+        ext: "png",
+        base: "GARIS CUTTING ",
+        desc: "Membuat garis cutting dengan 1 layout yang sama (tidak mix portrait/landscape).",
+        steps: [
+          { title: "Pilih grup (1 layout)", caption: "Pilih objek yang sudah di-grup (1 layout, tidak mix portrait/landscape)." },
+          { title: "Buat garis cutting", caption: "Klik Start hijau. Garis cutting otomatis dibuat dengan lebihan sedikit di area luar." }
+        ],
+        how: [
+          "Pilih objek yang sudah di-grup.",
+          "Pastikan 1 layout (tidak mix portrait dan landscape).",
+          "Klik Start hijau.",
+          "Garis cutting otomatis dibuat dengan lebihan sedikit di area luar."
+        ]
+      },
+      {
+        key: "garis-cutting-kombinasi",
+        name: "GARIS CUTTING KOMBINASI",
+        tag: "Mix",
+        ext: "png",
+        base: "GARIS CUTTING KOMBINASI ",
+        desc: "Membuat garis cutting dengan layout mix portrait dan landscape.",
+        steps: [
+          { title: "Pilih grup (layout mix)", caption: "Pilih objek yang sudah di-grup dengan layout mix portrait dan landscape." },
+          { title: "Buat garis cutting", caption: "Klik Start hijau. Garis cutting otomatis dibuat dengan lebihan sedikit di area luar." }
+        ],
+        how: [
+          "Pilih objek yang sudah di-grup dengan layout mix portrait dan landscape.",
+          "Klik Start hijau.",
+          "Garis cutting otomatis dibuat dengan lebihan sedikit di area luar."
+        ]
+      },
+      {
+        key: "crop-mark",
+        name: "CROP MARK",
+        tag: "Crop",
+        ext: "png",
+        base: "CROP MARK ",
+        desc: "Membuat garis potong crop luar.",
+        steps: [
+          { title: "Buat kotak ukuran jadi", caption: "Buat kotak acuan ukuran jadi (misal A5 148×210) sebagai patokan." },
+          { title: "Pilih kotak & jalankan", caption: "Pilih kotak acuan → klik Start hijau → crop mark muncul sesuai ukuran yang dipilih." }
+        ],
+        how: [
+          "Buat kotak ukuran jadi (misal A5 asli 148×210).",
+          "Pilih kotak acuan tersebut.",
+          "Klik Start hijau.",
+          "Crop Mark akan muncul sesuai ukuran yang dipilih."
+        ]
+      },
+      {
+        key: "siku-sudut",
+        name: "SIKU SUDUT",
+        tag: "Siku",
+        ext: "png",
+        base: "SIKU SUDUT ",
+        desc: "Membuat garis potong dengan siku di sudut objek.",
+        steps: [
+          { title: "Buat kotak ukuran jadi", caption: "Buat kotak acuan ukuran jadi (misal A5 148×210) sebagai patokan." },
+          { title: "Pilih kotak & jalankan", caption: "Pilih kotak acuan → klik Start hijau → siku sudut muncul sesuai ukuran yang dipilih." }
+        ],
+        how: [
+          "Buat kotak ukuran jadi (misal A5 asli 148×210).",
+          "Pilih kotak acuan tersebut.",
+          "Klik Start hijau.",
+          "Siku sudut akan muncul sesuai ukuran yang dipilih."
+        ]
+      },
+      {
+        key: "titik-hard",
+        name: "TITIK HARD",
+        tag: "Hardcover",
+        ext: "png",
+        base: "TITIK HARD ",
+        desc: "Membuat titik layout Hardcover (default jarak 8mm) dan Cover Tebal.",
+        steps: [
+          { title: "Pilih punggung hardcover", caption: "Pilih punggung Hardcover-nya, lalu klik Start hijau." },
+          { title: "Pilih NO (Hardcover)", caption: "Pilih NO untuk layout Hardcover." },
+          { title: "Titik untuk hardcover", caption: "Titik otomatis muncul di semua sudut Hardcover." },
+          { title: "Pilih YES (Cover tebal)", caption: "Pilih YES untuk layout Cover Tebal." },
+          { title: "Titik untuk cover tebal", caption: "Titik otomatis muncul di semua sudut Cover Tebal." }
+        ],
+        how: [
+          "Pilih punggung Hardcover-nya, lalu klik Start hijau.",
+          "Pilih NO untuk layout Hardcover → titik muncul di semua sudut Hardcover.",
+          "Pilih YES untuk layout Cover Tebal → titik muncul di semua sudut Cover Tebal."
+        ]
+      },
+      {
+        key: "teks-plot-cutting",
+        name: "TEKS PLOT CUTTING",
+        tag: "Teks",
+        ext: "png",
+        base: "TEKS PLOT CUTTING ",
+        desc: "Otomatis membuat teks plot cutting di semua layer / page.",
+        steps: [
+          { title: "Jalankan macro", caption: "Klik Start hijau." },
+          { title: "Isi nomor antrian", caption: "Masukkan nomor antrian → OK." },
+          { title: "Pilih NO (teks sama)", caption: "Pilih NO jika plotnya sama semua tiap halaman." },
+          { title: "Hasil NO", caption: "Semua page otomatis membuat Teks Plot Cutting sama semua." },
+          { title: "Pilih YES (beda halaman)", caption: "Pilih YES jika plot beda semua → teks diberi suffix huruf berbeda sesuai halaman." }
+        ],
+        how: [
+          "Klik Start hijau, masukkan antrian, lalu OK.",
+          "Pilih NO jika plotnya sama semua tiap halaman → semua page teksnya sama.",
+          "Pilih YES jika plot beda semua → semua page teks plot cutting pakai suffix huruf berbeda."
+        ]
+      }
+    ];
+
+    // ==============================
+    // INIT: Install slider
+    // ==============================
+    const installSlider = createSlider({
+      sliderEl: document.getElementById("installSlider"),
+      trackEl: document.getElementById("installTrack"),
+      dotsEl: document.getElementById("installDots"),
+      prevBtnEl: document.querySelector("#installSlider .sbtn.prev"),
+      nextBtnEl: document.querySelector("#installSlider .sbtn.next"),
+      capTitleEl: document.getElementById("installCapTitle"),
+      capTextEl: document.getElementById("installCapText"),
+      slides: installSlides
+    });
+
+    // ==============================
+    // INIT: Macro UI + slider
+    // ==============================
+    const macroListEl = document.getElementById("macroList");
+    const macroTitleEl = document.getElementById("macroTitle");
+    const macroTagEl   = document.getElementById("macroTag");
+    const macroDescEl  = document.getElementById("macroDesc");
+    const macroHowEl   = document.getElementById("macroHow");
+    const macroCapTitleEl = document.getElementById("macroCapTitle");
+    const macroCapTextEl  = document.getElementById("macroCapText");
+
+    const macroSlider = createSlider({
+      sliderEl: document.getElementById("macroSlider"),
+      trackEl: document.getElementById("macroTrack"),
+      dotsEl: document.getElementById("macroDots"),
+      prevBtnEl: document.querySelector("#macroSlider .sbtn.prev"),
+      nextBtnEl: document.querySelector("#macroSlider .sbtn.next"),
+      capTitleEl: macroCapTitleEl,
+      capTextEl: macroCapTextEl,
+      slides: [{ img: buildImagePath(IMG_FOLDER, INSTALL.base, 1, INSTALL.ext), title:"", caption:"" }]
+    });
+
+    function setActiveMacro(key){
+      const m = MACROS.find(x => x.key === key) || MACROS[0];
+
+      document.querySelectorAll(".macroItem").forEach(el => {
+        el.classList.toggle("active", el.dataset.key === m.key);
+      });
+
+      macroTitleEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> ${m.name}`;
+      macroTagEl.textContent = m.tag;
+      macroDescEl.textContent = m.desc;
+
+      macroHowEl.innerHTML = "";
+      (m.how || []).forEach(line => {
+        const li = document.createElement("li");
+        li.textContent = line;
+        macroHowEl.appendChild(li);
+      });
+
+      const slides = (m.steps || []).map((st, i) => ({
+        img: buildImagePath(IMG_FOLDER, m.base, i+1, m.ext),
+        title: `Step ${i+1} — ${st.title}`,
+        caption: st.caption
+      }));
+
+      macroSlider.setSlides(slides);
+    }
+
+    // Sidebar macro list: hanya nama macro (tanpa "(x gambar)")
+    MACROS.forEach(m => {
+      const item = document.createElement("div");
+      item.className = "macroItem";
+      item.dataset.key = m.key;
+      item.textContent = m.name;
+      item.addEventListener("click", () => setActiveMacro(m.key));
+      macroListEl.appendChild(item);
+    });
+
+    // default select first macro
+    setActiveMacro(MACROS[0].key);
+  </script>
+</body>
+</html>
