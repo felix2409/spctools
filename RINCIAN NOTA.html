@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
   <style>
-    /* Variabel Tema */
     :root{
       --bg:#eef2f7; --card:#ffffff; --text:#0f172a; --muted:#475569; --line:#dbe4f1;
       --brand:#1e3a8a; --brand-2:#3b82f6; --ok:#16a34a; --warn:#ca8a04; --err:#dc2626;
@@ -48,7 +47,6 @@
     }
     .btn.icon{ width:42px; height:42px; display:grid; place-items:center; padding:0; border-radius:12px }
 
-    /* Layout Utama */
     .wrap{ max-width:1040px; margin:0 auto; display:grid; gap:18px; grid-template-columns: 1fr 360px }
     @media (max-width: 980px){ .wrap{ grid-template-columns: 1fr } }
 
@@ -57,7 +55,6 @@
       box-shadow: var(--shadow); padding:24px;
     }
 
-    /* Drop area */
     .drop{
       display:flex; align-items:center; justify-content: center; flex-direction: column; gap:12px; padding:30px 16px; 
       border:2px dashed var(--brand-2); border-radius:12px; background:color-mix(in hsl, var(--brand-2), transparent 95%); 
@@ -70,23 +67,15 @@
     .drop strong{ display:block; margin-bottom:4px; font-size: 1.1rem; }
     input[type=file]{ display:none }
 
-    /* Tabel Estetik */
     .table-container { overflow-x: auto; }
-    table {
-      width: 100%; border-collapse: collapse; margin-top: 10px;
-    }
-    th, td {
-      padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--line);
-    }
-    th {
-      color: var(--muted); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
     td { font-size: 1.05rem; }
     td.qty { font-weight: 800; font-size: 1.2rem; color: var(--brand); text-align: center; width: 120px; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: color-mix(in hsl, var(--bg), transparent 50%); }
 
-    /* Status Log */
     .status{ max-height: 70vh; overflow:auto; padding: 0; display: flex; flex-direction: column; }
     .status-header { padding: 18px; border-bottom: 1px solid var(--line); font-weight: 700; display: flex; align-items: center; gap: 8px;}
     .status ul{ list-style:none; padding:0; margin:0; flex: 1; overflow-y: auto; padding: 10px 18px; }
@@ -152,7 +141,6 @@
   <footer>© 2026 Spectrum Digital Printing / Kalkulator Cetak</footer>
 
   <script>
-    // ====== Tema ======
     const themeBtn = document.getElementById('themeBtn');
     themeBtn.addEventListener('click', ()=>{
       const root = document.documentElement;
@@ -161,17 +149,14 @@
       themeBtn.innerHTML = now === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     });
     
-    // Set ikon awal berdasarkan default tema (dark)
     themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
 
-    // ====== Elemen UI ======
     const fileInput = document.getElementById('fileInput');
     const dropArea = document.getElementById('dropArea');
     const resultTableBody = document.getElementById('resultTableBody');
     const statusList = document.getElementById('statusList');
     const resetBtn = document.getElementById('resetBtn');
 
-    // ====== Drag & Drop Visuals ======
     dropArea.addEventListener('dragover', e => { 
         e.preventDefault(); 
         dropArea.style.borderColor = 'var(--brand)'; 
@@ -194,65 +179,75 @@
 
     fileInput.addEventListener('change', (e) => processFiles(e.target.files));
 
-    // ====== Logika Pemrosesan (Mesin Inti) ======
-    const kataYangDihapus = [
-        "POTONG", "DIPOTONG", "TOLONG", 
-        "PRINT", "PTINT", "PRIT", "PRNT", "PINT"
-    ];
+    const kataYangDihapus = ["DIPOTONG", "DI POTONG", "POTONG", "TOLONG"];
 
     function processFiles(files) {
         if (files.length === 0) return;
 
         let rekap = {};
-        statusList.innerHTML = ""; // Bersihkan log lama
+        statusList.innerHTML = ""; 
 
         for (let i = 0; i < files.length; i++) {
             let fileName = files[i].name.toUpperCase().replace('.PDF', '');
             
-            // 1. Deteksi Jumlah
-            let qtyRegex = /(\d+)X+/;
-            let qtyMatch = fileName.match(qtyRegex);
-            let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1; 
+            // Pre-processing: Amankan nama bahan yang pakai spasi agar tak dikira jumlah
+            fileName = fileName.replace(/HVS\s+100/g, 'HVS100');
+            fileName = fileName.replace(/AP\s+260/g, 'AP260');
+            fileName = fileName.replace(/AP\s+150/g, 'AP150');
+            
+            let qty = 1;
+            let bahanRaw = fileName;
 
-            // 2. Ambil teks nama bahan (Mendukung pola di depan atau di belakang jumlah)
-            let bahanRaw = "";
-            if (qtyMatch) {
-                if (fileName.startsWith(qtyMatch[0])) { 
-                    bahanRaw = fileName.substring(qtyMatch[0].length); 
-                } else { 
-                    bahanRaw = fileName.split(qtyRegex)[0]; 
-                }
-            } else {
-                bahanRaw = fileName; 
+            // UPGRADE LOGIKA: Mencari blok yang terdiri dari Angka + (opsional Huruf Apapun) di dalam file.
+            // Contoh yang tertangkap: " 2DD", " 2DG", " 20p", " 1c", " 4", dsb.
+            let regex = /(?:^|\s)(\d+)[A-Z]*\b/ig;
+            let matches = [...fileName.matchAll(regex)];
+
+            if (matches.length > 0) {
+                // Selalu ambil penemuan yang PALING BELAKANG (karena jumlah lembaran sering di akhir)
+                let lastMatch = matches[matches.length - 1];
+                qty = parseInt(lastMatch[1]);
+                // Hapus blok angka tersebut dari teks nama bahan
+                bahanRaw = fileName.substring(0, lastMatch.index) + " " + fileName.substring(lastMatch.index + lastMatch[0].length);
             }
 
-            // 3. Ubah strip jadi spasi
+            // Bersihkan nama bahan
             let bahan = bahanRaw.replace(/-/g, ' ');
 
-            // 4. Hapus kata typo
+            // Satukan berbagai typo print
+            bahan = bahan.replace(/PTINT|PRIT|PRNT|PINT/g, 'PRINT');
+            bahan = bahan.replace(/\s+/g, ' ').trim(); 
+
+            // === RULE KHUSUS "PRINT" ===
+            if (bahan === "PRINT") {
+                bahan = "DECAL";
+            } else {
+                bahan = bahan.replace(/PRINT 260/g, 'AP260');
+                bahan = bahan.replace(/PRINT AP260/g, 'AP260');
+                bahan = bahan.replace(/AP260 PRINT/g, 'AP260');
+                bahan = bahan.replace(/PRINT/g, ''); // Hapus sisa kata print di bahan lain
+            }
+
+            // Hapus kata-kata keterangan "Dipotong/Tolong"
             kataYangDihapus.forEach(kata => {
                 bahan = bahan.replace(new RegExp(kata, 'g'), '');
             });
 
-            // 5. Bersihkan sisa-sisa khusus
-            bahan = bahan.replace(/HVS\s+100/g, 'HVS100').trim();
-            bahan = bahan.replace(/\s+[A-Z]$/, '').trim(); // Hapus varian A, B, C
-            bahan = bahan.replace(/^AA\s+/, '').trim(); // Hapus awalan AA
-            bahan = bahan.replace(/\s+/g, ' ').trim(); // Rapikan spasi
+            // Pembersihan ekstra
+            bahan = bahan.replace(/\s+[A-Z]$/, ''); // Hapus huruf variasi (A/B/C) yang tertinggal di ujung
+            bahan = bahan.replace(/^AA\s+/, ''); 
+            bahan = bahan.replace(/\s+/g, ' ').trim(); 
 
             if (!bahan || bahan === "") bahan = "BAHAN LAINNYA";
 
-            // Masukkan ke rekap
             if (!rekap[bahan]) rekap[bahan] = 0;
             rekap[bahan] += qty;
 
-            // Tambahkan ke Log UI
             const li = document.createElement('li');
             li.innerHTML = `<span class="i ok">✓</span><span><i>${files[i].name}</i><br><span class="muted">➔ <b>${bahan}</b> (${qty} lembar)</span></span>`;
             statusList.appendChild(li);
         }
 
-        // Tampilkan Hasil ke Tabel UI
         resultTableBody.innerHTML = "";
         for (const [bahan, totalQty] of Object.entries(rekap)) {
             let row = `<tr>
@@ -262,11 +257,9 @@
             resultTableBody.innerHTML += row;
         }
         
-        // Scroll log ke paling bawah
         statusList.scrollTop = statusList.scrollHeight;
     }
 
-    // ====== Reset ======
     resetBtn.addEventListener('click', () => {
         fileInput.value = '';
         resultTableBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--muted); padding: 30px;">Belum ada data. Silakan masukkan file PDF di atas.</td></tr>`;
