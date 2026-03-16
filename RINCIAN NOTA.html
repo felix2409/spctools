@@ -190,7 +190,6 @@
         for (let i = 0; i < files.length; i++) {
             let fileName = files[i].name.toUpperCase().replace('.PDF', '');
             
-            // Pre-processing: Amankan nama bahan yang pakai spasi agar tak dikira jumlah
             fileName = fileName.replace(/HVS\s+100/g, 'HVS100');
             fileName = fileName.replace(/AP\s+260/g, 'AP260');
             fileName = fileName.replace(/AP\s+150/g, 'AP150');
@@ -198,23 +197,17 @@
             let qty = 1;
             let bahanRaw = fileName;
 
-            // UPGRADE LOGIKA: Mencari blok yang terdiri dari Angka + (opsional Huruf Apapun) di dalam file.
-            // Contoh yang tertangkap: " 2DD", " 2DG", " 20p", " 1c", " 4", dsb.
             let regex = /(?:^|\s)(\d+)[A-Z]*\b/ig;
             let matches = [...fileName.matchAll(regex)];
 
             if (matches.length > 0) {
-                // Selalu ambil penemuan yang PALING BELAKANG (karena jumlah lembaran sering di akhir)
                 let lastMatch = matches[matches.length - 1];
                 qty = parseInt(lastMatch[1]);
-                // Hapus blok angka tersebut dari teks nama bahan
                 bahanRaw = fileName.substring(0, lastMatch.index) + " " + fileName.substring(lastMatch.index + lastMatch[0].length);
             }
 
-            // Bersihkan nama bahan
             let bahan = bahanRaw.replace(/-/g, ' ');
 
-            // Satukan berbagai typo print
             bahan = bahan.replace(/PTINT|PRIT|PRNT|PINT/g, 'PRINT');
             bahan = bahan.replace(/\s+/g, ' ').trim(); 
 
@@ -225,16 +218,22 @@
                 bahan = bahan.replace(/PRINT 260/g, 'AP260');
                 bahan = bahan.replace(/PRINT AP260/g, 'AP260');
                 bahan = bahan.replace(/AP260 PRINT/g, 'AP260');
-                bahan = bahan.replace(/PRINT/g, ''); // Hapus sisa kata print di bahan lain
+                bahan = bahan.replace(/PRINT/g, ''); 
             }
 
-            // Hapus kata-kata keterangan "Dipotong/Tolong"
             kataYangDihapus.forEach(kata => {
                 bahan = bahan.replace(new RegExp(kata, 'g'), '');
             });
 
-            // Pembersihan ekstra
-            bahan = bahan.replace(/\s+[A-Z]$/, ''); // Hapus huruf variasi (A/B/C) yang tertinggal di ujung
+            // === PEMBERSIHAN EKSTRA (TERMASUK TANDA KURUNG) ===
+            bahan = bahan.replace(/HVS\s+100/g, 'HVS100');
+            
+            // Hapus semua variasi teks di dalam tanda kurung, misal (A), (1), dll
+            bahan = bahan.replace(/\([^)]*\)/g, ' '); 
+            
+            // Hapus huruf variasi (A/B/C) tanpa kurung di paling ujung (misal "HVS100 A")
+            bahan = bahan.replace(/\s+[A-Z]$/i, ''); 
+            
             bahan = bahan.replace(/^AA\s+/, ''); 
             bahan = bahan.replace(/\s+/g, ' ').trim(); 
 
