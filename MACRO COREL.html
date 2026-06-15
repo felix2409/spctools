@@ -1,3 +1,8 @@
+Berikut adalah kode HTML yang sudah diperbarui. Saya telah menambahkan bagian **UPDATE V3** di *Changelog* dan memasukkan konfigurasi macro **CONTOUR** ke dalam *array* JavaScript sesuai dengan panduan langkah yang kamu berikan.
+
+Kamu bisa langsung menyalin seluruh kode di bawah ini untuk menggantikan file HTML kamu sebelumnya:
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -191,7 +196,7 @@
     .steps ul{margin:8px 0 0;padding-left:18px;color:#334155;line-height:1.55}
     .steps li{margin:6px 0}
 
-    /* CSS Tambahan untuk Changelog */
+    /* CSS Changelog */
     .changelog-section {
       margin-top: 14px;
       background: #fff;
@@ -237,6 +242,11 @@
       border: 1px solid #bbf7d0;
       color: #166534;
       white-space: nowrap;
+    }
+    .badge-v3 {
+      background: #e0e7ff;
+      border: 1px solid #c7d2fe;
+      color: #3730a3;
     }
     .changelog-title-text {
       font-weight: 800;
@@ -346,6 +356,15 @@
       <div class="changelog-body">
         <div class="changelog-item">
           <div class="changelog-item-header">
+            <span class="badge-update badge-v3">UPDATE V3</span>
+            <span class="changelog-title-text">Penambahan Macro Contour</span>
+          </div>
+          <p class="changelog-desc">
+            Sekarang tersedia macro <b>Contour</b> yang berfungsi untuk membuat garis contour otomatis pada satu atau beberapa objek sekaligus dengan custom jarak (mm).
+          </p>
+        </div>
+        <div class="changelog-item">
+          <div class="changelog-item-header">
             <span class="badge-update">UPDATE V2</span>
             <span class="changelog-title-text">Pembaruan Macro Crop Mark</span>
           </div>
@@ -356,7 +375,7 @@
         </div>
     </div>
 
-    <div class="footer">© 2025 Spectrum Digital Printing • Macro Docs</div>
+    <div class="footer">© 2026 Spectrum Digital Printing • Macro Docs</div>
   </div>
 
   <script>
@@ -546,6 +565,24 @@
         ]
       },
       {
+        key: "contour",
+        name: "CONTOUR",
+        tag: "Contour",
+        ext: "jpg",
+        base: "CONTOUR ",
+        desc: "Membuat garis contour otomatis pada objek tunggal maupun banyak sekaligus sesuai pengaturan jarak.",
+        steps: [
+          { title: "Pilih objek", caption: "Pilih objek yang mau di contour (bisa satuan bisa semaunya) dan klik logo start hijau." },
+          { title: "Input Jarak", caption: "Input mau berapa mm jarak contour dari objeknya." },
+          { title: "Break Contour", caption: "Break contour dari objek dengan Ctrl + K pada garis contournya." }
+        ],
+        how: [
+          "Pilih objek yang mau di contour (bisa satuan bisa semaunya) dan klik logo start hijau.",
+          "Input mau berapa mm jarak contour dari objeknya.",
+          "Break contour dari objek dengan menekan Ctrl + K pada garis contournya."
+        ]
+      },
+      {
         key: "cropmark",
         name: "CROP MARK",
         tag: "Crop",
@@ -728,3 +765,5 @@
   </script>
 </body>
 </html>
+
+```
